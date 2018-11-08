@@ -1,0 +1,35 @@
+{% extends 'bootstrap/base.html' %}
+
+
+<head>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='navbar.css') }}">
+</head>
+
+{% block navbar %}
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{{ url_for('prediction.index') }}">Animator</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('prediction.index') }}">Home</a></li>
+            <li><a href="">Recommendations</a></li>
+            <li><a href="">Help</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+              {% if g.user %}
+                <li><a>{{ g.user['username'] }}</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+              {% else %}
+                <li><a href="{{ url_for('auth.login') }}">Login</a>
+                <li><a href="{{ url_for('auth.register') }}">Register</a>
+              {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Upload{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='index-start.css') }}">
+<main role="main" class="container">
+    <div class="container marketing">
+        <div class="row">
+            <div class="col-lg-6">
+                <center><h2>From file</h2></center>
+                <p>Upload anime list from CSV file. Form specially structured text file based on your anime list. Information about file contents can be found on Help page.</p>
+                <form action = "{{ url_for('prediction.upload_file') }}" method="POST" enctype="multipart/form-data">
+                    <label class="btn btn-default btn-file"> Browse <input type="file" name="file" style="display: none;"></label>
+                    <label class="btn btn-default"> Confirm <input type="submit" style="display: none;"/></label>
+                </form>
+                {% for message in get_flashed_messages() %}
+                <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-lg-6">
+                <center><h2>From site</h2></center>
+                <p>Upload anime list directy from MAL site using custom parser. Only classic style of anime list is supported. Creation of list might take a while and execution time depend on number of completed titles.</p>
+                <form class="form-inline" method="post">
+                    <div class="form-group mx-sm-3">
+                        <label for="mal_username" class="sr-only">MAL username</label>
+                        <input name="mal_username" id="mal_username" value="{{ request.form['mal_username'] }}" class="form-control" placeholder="MAL username">
+                    </div>
+                    <label class="btn btn-default"> Load <input type="submit" style="display: none;"/></label>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

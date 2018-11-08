@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Login{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+<body class="text-center">
+<form class="form-signin" method="post">
+  <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+  <label for="username" class="sr-only">Username</label>
+  <input name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+  <label for="password" class="sr-only">Password</label>
+  <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+  <button class="btn btn-lg btn-block btn-info" type="submit">Sign in</button>
+</form>
+</body>
+
+{% for message in get_flashed_messages() %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}
+
+
+
+
+
+
+
