@@ -3,8 +3,7 @@ import os
 from flask import Flask
 from flask_bootstrap import Bootstrap
 
-from . import prediction
-from . import db, auth
+from . import db, auth, prediction, recommendations
 
 
 def create_app(test_config=None):
@@ -37,6 +36,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(prediction.bp)
+    app.register_blueprint(recommendations.bp)
 
     app.add_url_rule('/', endpoint='index')
 

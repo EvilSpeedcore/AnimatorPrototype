@@ -12,7 +12,7 @@ from app.db import get_db
 from . import main
 from . import constructor
 
-UPLOAD_FOLDER = r'C:\Program Files'
+
 bp = Blueprint('prediction', __name__)
 
 
