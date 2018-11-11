@@ -1,43 +1,36 @@
 {% extends 'base.html' %}
 
-<body>
-{% block header %}
-  <h1>{% block title %}Animator{% endblock %}</h1>
-
-{% endblock %}
-
+{% block title %}Animator{% endblock %}
 
 {% block content %}
 <main role="main" class="container">
-  {% if g.user and data_set.empty %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='index-start.css') }}">
-  <div class="starter-template">
-    <h1>Getting started</h1>
-    <p class="lead">Start working with application with loading your MAL profile. Your anime list must contain at least 300 completed titles in order for the application to successfully build model and make predictions.</p>
-    <button class="btn btn-lg btn-info" onclick="location.href='{{ url_for('prediction.create') }}'" type="button">Start</button>
-  </div>
-  {% endif %}
-
-  {% if g.user and not data_set.empty %}
-          <center><h2>Your list</h2></center>
+    {% if g.user and data_set.empty %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='index-start.css') }}">
+    <div class="starter-template">
+        <h1>Getting started</h1>
+        <p class="lead">Start working with application with loading your MAL profile. Your anime list must contain at least 300 completed titles in order for the application to successfully build model and make predictions.</p>
+        <button class="btn btn-lg btn-info" onclick="location.href='{{ url_for('anilist.create') }}'" type="button">Start</button>
+    </div>
+    {% endif %}
+    {% if g.user and not data_set.empty %}
+    <h2 align="center">Your list</h2>
     <hr>
-      <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
     {{ data_set.to_html(classes="table striped", na_rep="-", index=False) | safe}}
-    </main>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="row">
-                    <div class="col-md-2">
-                        <button class="btn btn-default" onclick="location.href='{{ url_for('prediction.update') }}'" type="button">Update list</button>
-                    </div>
-                    <div class="col-md-6">
-                        <button class="btn btn-default" onclick="location.href='{{ url_for('prediction.predict') }}'" type="button">Make prediction</button>
-                    </div>
+</main>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.update') }}'" type="button">Update list</button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-default" onclick="location.href='{{ url_for('prediction.predict') }}'" type="button">Make prediction</button>
                 </div>
             </div>
         </div>
     </div>
-  {% endif %}
+</div>
+{% endif %}
 {% endblock %}
-</body>

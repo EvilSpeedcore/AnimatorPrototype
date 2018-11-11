@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_bootstrap import Bootstrap
 
-from . import db, auth, prediction, recommendations
+from . import auth, anilist, db, prediction, recommendations
 
 
 def create_app(test_config=None):
@@ -28,13 +28,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-
     db.init_app(app)
 
     app.register_blueprint(auth.bp)
+    app.register_blueprint(anilist.bp)
     app.register_blueprint(prediction.bp)
     app.register_blueprint(recommendations.bp)
 
