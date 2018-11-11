@@ -1,3 +1,5 @@
+#  TODO: Think about using OrderedDict in project just in case.
+#  TODO: Change order of anime list columns on index page.
 import json
 
 from flask import (
@@ -28,7 +30,7 @@ def index():
         WHERE p.profile_id = ? 
         """, (user_id, )
     ).fetchone()
-    data = pd.DataFrame(json.loads(data_set['list'])).head(5) if data_set else pd.DataFrame()
+    data = pd.DataFrame(json.loads(data_set['list'])) if data_set else pd.DataFrame()
     return render_template('prediction/index.html', data_set=data)
 
 
@@ -63,11 +65,12 @@ def predict():
             if prediction:
                 get_db().execute(
                     """
-                    INSERT OR IGNORE INTO recommendations(profile_id,title,episodes,studio,src,genre,score)
-                    VALUES(?,?,?,?,?,?,?)
+                    INSERT OR IGNORE INTO recommendations(profile_id,title,anime_type,episodes,studio,src,genre,score)
+                    VALUES(?,?,?,?,?,?,?,?)
                     """,
                     (str(g.user['id']),
                      anime_page_data['Title'],
+                     anime_page_data['Type'],
                      anime_page_data['Episodes'],
                      anime_page_data['Studios'],
                      anime_page_data['Source'],

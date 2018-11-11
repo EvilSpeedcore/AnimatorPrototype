@@ -3,6 +3,7 @@ from flask import (
 )
 
 from app.auth import login_required
+from app.db import get_db
 
 bp = Blueprint('recommendations', __name__)
 
@@ -10,4 +11,12 @@ bp = Blueprint('recommendations', __name__)
 @bp.route('/recommendations', methods=('GET', 'POST'))
 @login_required
 def show_recommendations():
-    return render_template('recommendations/recommendations.html')
+
+    recommendations = get_db().execute(
+        """
+        SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score
+        FROM recommendations r
+        WHERE r.profile_id = ?
+        """, (str(session.get('user_id')))
+    ).fetchall()
+    return render_template('recommendations/recommendations.html', recommendations=recommendations)

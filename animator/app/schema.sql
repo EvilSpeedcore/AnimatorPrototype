@@ -21,6 +21,7 @@ CREATE TABLE recommendations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id INTEGER NOT NULL,
   title TEXT UNIQUE NOT NULL,
+  anime_type TEXT NOT NULL,
   episodes TEXT NOT NULL,
   studio TEXT NOT NULL,
   src TEXT NOT NULL,
