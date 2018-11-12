@@ -8,8 +8,8 @@ from flask import (
 import pandas as pd
 import requests.exceptions
 
-from app.auth import login_required
-from app.db import get_db
+from animator.auth import login_required
+from animator.db import get_db
 from . import constructor, main
 
 

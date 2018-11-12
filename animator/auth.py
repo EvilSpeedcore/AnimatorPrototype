@@ -1,6 +1,6 @@
 import functools
 
-from app.db import get_db
+from animator.db import get_db
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )

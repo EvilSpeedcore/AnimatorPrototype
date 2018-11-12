@@ -2,8 +2,9 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from app.auth import login_required
-from app.db import get_db
+from animator.auth import login_required
+from animator.db import get_db
+
 
 bp = Blueprint('recommendations', __name__)
 

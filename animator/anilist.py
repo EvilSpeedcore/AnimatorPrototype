@@ -6,8 +6,8 @@ from flask import (
 import pandas as pd
 
 from . import main
-from app.db import get_db
-from app.auth import login_required
+from animator.db import get_db
+from animator.auth import login_required
 
 
 bp = Blueprint('anilist', __name__)
