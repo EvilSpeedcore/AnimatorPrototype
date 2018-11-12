@@ -33,13 +33,13 @@
         </thead>
         <tbody>
         <tr>
-            <td> <a href=" {{ request.form['anime_url'] }}" title="Visit MyAnimeList.net">{{ anime_page_data['Title'] }}</a></td>
-            <td>{{ anime_page_data['Type'] }}</td>
-            <td>{{ anime_page_data['Episodes'] }}</td>
-            <td>{{ anime_page_data['Studios'] }}</td>
-            <td>{{ anime_page_data['Source'] }}</td>
-            <td>{{ anime_page_data['Genres'] }}</td>
-            <td>{{ anime_page_data['Score'] }}</td>
+            <td> <a href=" {{ request.form['anime_url'] }}" title="Visit MyAnimeList.net">{{ anime_page_data.title }}</a></td>
+            <td>{{ anime_page_data.type }}</td>
+            <td>{{ anime_page_data.episodes }}</td>
+            <td>{{ anime_page_data.studio }}</td>
+            <td>{{ anime_page_data.source }}</td>
+            <td>{{ anime_page_data.genre }}</td>
+            <td>{{ anime_page_data.score }}</td>
         </tr>
         </tbody>
     </table>

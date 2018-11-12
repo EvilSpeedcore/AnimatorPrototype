@@ -1,16 +1,19 @@
 #  TODO: Think about using OrderedDict in project just in case.
 #  TODO: Change order of anime list columns on index page.
+#  TODO: Update (clean up) requirements.txt
 import json
+from pathlib import Path
+from urllib.parse import urlsplit
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from jikanpy.exceptions import APIException
 import pandas as pd
-import requests.exceptions
 
 from animator.auth import login_required
 from animator.db import get_db
-from . import constructor, main
+from . import constructor, parser
 
 
 bp = Blueprint('prediction', __name__)
@@ -44,8 +47,9 @@ def predict():
         else:
             message = 'Incorrect URL. Valid example: https://myanimelist.net/anime/457/Mushishi'
         try:
-            anime_page_data = main.parse_anime_page(anime_url)
-        except (AttributeError, requests.exceptions.MissingSchema):
+            anime_id = Path(urlsplit(anime_url).path).parts[2]
+            anime_page_data = parser.AnimePageInfo(anime_id)
+        except (IndexError, APIException):
             flash(message)
         else:
             anime_list = get_db().execute(
@@ -69,13 +73,13 @@ def predict():
                     VALUES(?,?,?,?,?,?,?,?)
                     """,
                     (str(g.user['id']),
-                     anime_page_data['Title'],
-                     anime_page_data['Type'],
-                     anime_page_data['Episodes'],
-                     anime_page_data['Studios'],
-                     anime_page_data['Source'],
-                     anime_page_data['Genres'],
-                     anime_page_data['Score'])
+                     anime_page_data.title,
+                     anime_page_data.type,
+                     anime_page_data.episodes,
+                     anime_page_data.studio,
+                     anime_page_data.source,
+                     anime_page_data.genre,
+                     anime_page_data.score)
                 )
                 get_db().commit()
             return render_template('prediction/prediction.html',

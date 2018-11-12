@@ -23,6 +23,7 @@ class ModelConstructor:
     def create_model(self):
         models = []
         for score in range(5, 9):
+            print(self.date_set)
             df = pd.DataFrame(self.date_set).dropna()
             df['Personal score'] = (df['Personal score'] > score).astype(int)
             initial_data = pd.get_dummies((df[['Episodes', 'Genres', 'Score', 'Source', 'Studios', 'Type']]))
@@ -48,16 +49,21 @@ class ModelConstructor:
         self.train_set = best_model.train_subset
 
     def predict(self, anime_data):
-        g = {key: [value] for key, value in anime_data.items()}
-        h = pd.DataFrame(g)
-        m = pd.get_dummies((h[['Genres', 'Source', 'Studios', 'Type']]))
-        b = h[['Episodes', 'Score']].join(m)
+        sample = {'Episodes': [anime_data.episodes],
+                  'Score': [anime_data.score],
+                  'Genres': [anime_data.genre],
+                  'Source': [anime_data.source],
+                  'Studios': [anime_data.studio],
+                  'Type': [anime_data.type]}
+        df = pd.DataFrame(sample)
+        categorical_data = pd.get_dummies((df[['Genres', 'Source', 'Studios', 'Type']]))
+        initial_data = df[['Episodes', 'Score']].join(categorical_data)
 
         x_train, y_train = self.train_set
         x_test, y_test = self.test_set
         pipe_forest = self.model
 
-        x = pd.concat([x_train, b], axis=0, sort=True, keys=['train', 'test']).loc['test'].fillna(0)
+        x = pd.concat([x_train, initial_data], axis=0, sort=True, keys=['train', 'test']).loc['test'].fillna(0)
         print(len(x.columns))
         print(len(x_train.columns))
         #  TODO: Количество колонок иногда не совпадает.

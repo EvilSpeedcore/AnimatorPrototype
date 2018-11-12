@@ -1,3 +1,4 @@
+import json
 import io
 
 from flask import (
@@ -5,7 +6,7 @@ from flask import (
 )
 import pandas as pd
 
-from . import main
+from . import parser
 from animator.db import get_db
 from animator.auth import login_required
 
@@ -30,7 +31,9 @@ def create():
         if error is not None:
             flash(error)
         else:
-            data = main.convert_anime_list_into_json(mal_username)
+            user = parser.MALUser(mal_username)
+            set_constructor = parser.DataSetConstructor(user.anime_list)
+            data = json.dumps(set_constructor.create_data_set())
             record = get_db().execute(
                 """
                 SELECT *
@@ -70,8 +73,8 @@ def upload_file():
             flash('Please, select file to upload.')
             return render_template('list_creation/create_list.html')
         file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
+        if not file.filename:
+            flash('No selected file.')
             return render_template('list_creation/create_list.html')
         if file:
             a = io.BytesIO(file.read())
