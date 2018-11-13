@@ -13,7 +13,7 @@ import pandas as pd
 
 from animator.auth import login_required
 from animator.db import get_db
-from . import constructor, parser
+from . import learning, parser
 
 
 bp = Blueprint('prediction', __name__)
@@ -62,29 +62,31 @@ def predict():
             ).fetchone()[0]
 
             anime_list = json.loads(anime_list)
-
-            feature_constructor = constructor.ModelConstructor(anime_list)
-            feature_constructor.create_model()
-            prediction, train_accuracy, test_accuracy = feature_constructor.predict(anime_page_data)
-            if prediction:
-                get_db().execute(
-                    """
-                    INSERT OR IGNORE INTO recommendations(profile_id,title,anime_type,episodes,studio,src,genre,score)
-                    VALUES(?,?,?,?,?,?,?,?)
-                    """,
-                    (str(g.user['id']),
-                     anime_page_data.title,
-                     anime_page_data.type,
-                     anime_page_data.episodes,
-                     anime_page_data.studio,
-                     anime_page_data.source,
-                     anime_page_data.genre,
-                     anime_page_data.score)
-                )
-                get_db().commit()
-            return render_template('prediction/prediction.html',
-                                   anime_page_data=anime_page_data,
-                                   prediction=prediction,
-                                   train_accuracy=train_accuracy,
-                                   test_accuracy=test_accuracy)
+            model = learning.ModelConstructor(anime_list).model
+            if not model:
+                flash('Number of completed titles is too damn low!')
+            else:
+                predictor = learning.Predictor(model)
+                prediction, train_accuracy, test_accuracy = predictor.make_prediction(anime_page_data)
+                if prediction:
+                    get_db().execute(
+                        """
+                        INSERT OR IGNORE INTO recommendations(profile_id,title,anime_type,episodes,studio,src,genre,score)
+                        VALUES(?,?,?,?,?,?,?,?)
+                        """,
+                        (str(g.user['id']),
+                         anime_page_data.title,
+                         anime_page_data.type,
+                         anime_page_data.episodes,
+                         anime_page_data.studio,
+                         anime_page_data.source,
+                         anime_page_data.genre,
+                         anime_page_data.score)
+                    )
+                    get_db().commit()
+                return render_template('prediction/prediction.html',
+                                       anime_page_data=anime_page_data,
+                                       prediction=prediction,
+                                       train_accuracy=train_accuracy,
+                                       test_accuracy=test_accuracy)
     return render_template('prediction/prediction.html')
