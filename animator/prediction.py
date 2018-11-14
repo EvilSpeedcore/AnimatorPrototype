@@ -28,10 +28,9 @@ def index():
         """
         SELECT p.list 
         FROM profile p 
-        INNER JOIN user u
-        ON p.id = u.id
-        WHERE p.profile_id = ? 
-        """, (user_id, )
+        WHERE p.profile_id = ?
+        """,
+        (str(user_id))
     ).fetchone()
     data = pd.DataFrame(json.loads(data_set['list'])) if data_set else pd.DataFrame()
     return render_template('prediction/index.html', data_set=data)
@@ -52,6 +51,7 @@ def predict():
         except (IndexError, APIException):
             flash(message)
         else:
+            #  TODO: Use session.get(user_id) instead of g.user['id']?. See recommendations.py
             anime_list = get_db().execute(
                 """
                 SELECT list
