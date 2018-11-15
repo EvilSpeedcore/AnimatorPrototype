@@ -34,33 +34,14 @@ def create():
             user = parser.MALUser(mal_username)
             set_constructor = parser.DataSetConstructor(user.anime_list)
             data = json.dumps(set_constructor.create_data_set())
-            record = get_db().execute(
+            get_db().execute(
                 """
-                SELECT *
-                FROM profile
-                WHERE profile_id = ?
+                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
+                VALUES (?, ?, ?, ?);
                 """,
-                (str(g.user['id']))
-            ).fetchone()
-            if not record:
-                get_db().execute(
-                    """
-                    INSERT INTO profile (mal_username, profile_id, url, list)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (mal_username, g.user['id'], 'None', data)
-                )
-                get_db().commit()
-            else:
-                get_db().execute(
-                    """
-                    UPDATE profile
-                    SET list = ?
-                    WHERE profile_id = ? 
-                    """,
-                    (data, g.user['id'])
-                )
-                get_db().commit()
+                (mal_username, g.user['id'], 'None', data)
+            )
+            get_db().commit()
             return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
@@ -77,33 +58,14 @@ def upload_file():
             flash('No selected file.')
             return render_template('list_creation/create_list.html')
         if file:
-            a = io.BytesIO(file.read())
-            b = pd.read_csv(a).to_json()
-            record = get_db().execute(
+            stream = io.BytesIO(file.read())
+            data = pd.read_csv(stream).to_json()
+            get_db().execute(
                 """
-                SELECT *
-                FROM profile
-                WHERE profile_id = ?
+                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
+                VALUES (?, ?, ?, ?);
                 """,
-                (str(g.user['id']))
-            ).fetchone()
-            if not record:
-                get_db().execute(
-                    """
-                    INSERT INTO profile (mal_username, profile_id, url, list)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    ('None', g.user['id'], 'None', b)
-                )
-                get_db().commit()
-            else:
-                get_db().execute(
-                    """
-                    UPDATE profile
-                    SET list = ?
-                    WHERE profile_id = ? 
-                    """,
-                    (b, g.user['id'])
-                )
-                get_db().commit()
+                ('None', g.user['id'], 'None', data)
+            )
+            get_db().commit()
             return redirect(url_for('prediction.index'))

@@ -18,6 +18,7 @@ def show_recommendations():
         SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score
         FROM recommendations r
         WHERE r.profile_id = ?
-        """, (str(session.get('user_id')))
+        """,
+        (str(session.get('user_id')))
     ).fetchall()
     return render_template('recommendations/recommendations.html', recommendations=recommendations)
