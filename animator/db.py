@@ -3,6 +3,7 @@ import sqlite3
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
+import aiosqlite
 
 
 def init_app(app):
@@ -19,6 +20,23 @@ def get_db():
         g.db.row_factory = sqlite3.Row
 
     return g.db
+
+
+async def update_db(query, args=()):
+    async with aiosqlite.connect(current_app.config['DATABASE'],
+                                 detect_types=sqlite3.PARSE_DECLTYPES) as db:
+        db.row_factory = sqlite3.Row
+        await db.execute(query, args)
+        await db.commit()
+
+
+async def query_db(query, args=(), one=False):
+    async with aiosqlite.connect(current_app.config['DATABASE'],
+                                 detect_types=sqlite3.PARSE_DECLTYPES) as db:
+        db.row_factory = sqlite3.Row
+        cursor = await db.execute(query, args)
+        result = await cursor.fetchone() if one else await cursor.fetchall()
+        return result
 
 
 def close_db(e=None):

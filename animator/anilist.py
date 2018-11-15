@@ -1,3 +1,4 @@
+import asyncio
 import json
 import io
 
@@ -7,10 +8,12 @@ from flask import (
 import pandas as pd
 
 from . import parser
-from animator.db import get_db
+from animator.db import update_db
 from animator.auth import login_required
 
 
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 bp = Blueprint('anilist', __name__)
 
 
@@ -34,14 +37,13 @@ def create():
             user = parser.MALUser(mal_username)
             set_constructor = parser.DataSetConstructor(user.anime_list)
             data = json.dumps(set_constructor.create_data_set())
-            get_db().execute(
+
+            loop.run_until_complete(update_db(
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
                 VALUES (?, ?, ?, ?);
                 """,
-                (mal_username, g.user['id'], 'None', data)
-            )
-            get_db().commit()
+                (mal_username, g.user['id'], 'None', data)))
             return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
@@ -60,12 +62,10 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            get_db().execute(
+            loop.run_until_complete(update_db(
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
                 VALUES (?, ?, ?, ?);
                 """,
-                ('None', g.user['id'], 'None', data)
-            )
-            get_db().commit()
+                ('None', g.user['id'], 'None', data)))
             return redirect(url_for('prediction.index'))
