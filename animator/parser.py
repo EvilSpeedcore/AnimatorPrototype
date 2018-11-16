@@ -1,9 +1,10 @@
 #  TODO: Put classes into different files
 import collections
 import concurrent.futures
+import time
 import unicodedata
 
-from jikanpy import Jikan
+from jikanpy import Jikan, exceptions
 
 
 ListRecord = collections.namedtuple('ListRecord', ['mal_id', 'title', 'personal_score'])

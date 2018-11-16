@@ -12,9 +12,9 @@ from animator.db import update_db
 from animator.auth import login_required
 
 
+bp = Blueprint('anilist', __name__)
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
-bp = Blueprint('anilist', __name__)
 
 
 @bp.route('/update', methods=('GET', 'POST'))
