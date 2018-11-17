@@ -5,6 +5,7 @@ import io
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+import jikanpy.exceptions
 import pandas as pd
 
 from . import parser
@@ -27,26 +28,25 @@ def update():
 def create():
     if request.method == 'POST':
         mal_username = request.form['mal_username']
-        error = None
         if not mal_username:
-            #  Works file when pressed first on loading page.
-            #  If pressed after no file error, there is no error and request is /upload, not /create.
-            error = 'MyAnimeList username is required.'
-        if error is not None:
-            flash(error)
+            flash('MyAnimeList username is required.')
         else:
-            user = parser.MALUser(mal_username)
-            set_constructor = parser.DataSetConstructor(user.anime_list)
-            data = json.dumps(set_constructor.create_data_set())
-            DBController.update(
-                loop,
-                """
-                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);
-                """,
-                (mal_username, g.user['id'], 'None', data)
-            )
-            return redirect(url_for('prediction.index'))
+            try:
+                user = parser.MALUser(mal_username)
+            except jikanpy.exceptions.APIException:
+                flash('Invalid username.')
+            else:
+                set_constructor = parser.DataSetConstructor(user.anime_list)
+                data = json.dumps(set_constructor.create_data_set())
+                DBController.update(
+                    loop,
+                    """
+                    INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
+                    VALUES (?, ?, ?, ?);
+                    """,
+                    (mal_username, g.user['id'], 'None', data)
+                )
+                return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
 
