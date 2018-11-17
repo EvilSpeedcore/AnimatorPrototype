@@ -10,8 +10,7 @@ from animator.db import DBController
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+loop = asyncio.get_event_loop()
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -25,17 +24,19 @@ def register():
         elif not password:
             error = 'Password is required.'
         elif DBController.query(
+                loop,
                 """
                 SELECT id FROM user WHERE username = ?
                 """,
-                (username, ), is_one=True, loop=loop) is not None:
+                (username, ), is_one=True) is not None:
             error = 'User {} is already registered.'.format(username)
         if error is None:
             DBController.update(
+                loop,
                 """
                 INSERT INTO user (username, password) VALUES (?, ?)
                 """,
-                (username, generate_password_hash(password)), loop=loop)
+                (username, generate_password_hash(password)))
             return redirect(url_for('auth.login'))
         flash(error)
     return render_template('auth/register.html')
@@ -48,10 +49,11 @@ def login():
         password = request.form['password']
         error = None
         user = DBController.query(
+            loop,
             """
             SELECT * FROM user WHERE username = ?
             """,
-            (username, ), is_one=True, loop=loop)
+            (username, ), is_one=True)
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
@@ -72,10 +74,11 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = DBController.query(
+            loop,
             """
             SELECT * FROM user WHERE id = ?
             """,
-            (user_id, ), is_one=True, loop=loop)
+            (user_id, ), is_one=True)
 
 
 @bp.route('/logout')

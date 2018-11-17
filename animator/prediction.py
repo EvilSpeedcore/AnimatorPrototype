@@ -18,8 +18,7 @@ from . import learning, parser
 
 
 bp = Blueprint('prediction', __name__)
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+loop = asyncio.get_event_loop()
 
 
 @bp.route('/', methods=('GET', 'POST'))
@@ -28,12 +27,13 @@ def index():
     if user_id is None:
         return redirect(url_for('auth.login'))
     data_set = DBController.query(
+        loop,
         """
         SELECT p.list 
         FROM profile p 
         WHERE p.profile_id = ?
         """,
-        (user_id, ), is_one=True, loop=loop)
+        (user_id, ), is_one=True)
     data = pd.DataFrame(json.loads(data_set['list'])) if data_set else pd.DataFrame()
     return render_template('prediction/index.html', data_set=data)
 
@@ -55,12 +55,13 @@ def predict():
         else:
             #  TODO: Use session.get(user_id) instead of g.user['id']?. See recommendations.py
             anime_list = DBController.query(
+                loop,
                 """
                 SELECT p.list 
                 FROM profile p 
                 WHERE p.profile_id = ?
                 """,
-                (g.user['id'], ), is_one=True, loop=loop)
+                (g.user['id'], ), is_one=True)
             anime_list = json.loads(anime_list[0])
             model = learning.ModelConstructor(anime_list).model
             if not model:
@@ -74,16 +75,18 @@ def predict():
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                     """)
                 if prediction:
-                    DBController.update(query,
-                                        (g.user['id'],
-                                         anime_page_data.title,
-                                         anime_page_data.type,
-                                         anime_page_data.episodes,
-                                         anime_page_data.studio,
-                                         anime_page_data.source,
-                                         anime_page_data.genre,
-                                         anime_page_data.score
-                                         ), loop=loop)
+                    DBController.update(
+                        loop,
+                        query,
+                        (g.user['id'],
+                         anime_page_data.title,
+                         anime_page_data.type,
+                         anime_page_data.episodes,
+                         anime_page_data.studio,
+                         anime_page_data.source,
+                         anime_page_data.genre,
+                         anime_page_data.score
+                         ))
                 return render_template('prediction/prediction.html',
                                        anime_page_data=anime_page_data,
                                        prediction=prediction,
