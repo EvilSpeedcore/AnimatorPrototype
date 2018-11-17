@@ -4,7 +4,7 @@ import concurrent.futures
 import time
 import unicodedata
 
-from jikanpy import Jikan, exceptions
+from jikanpy import Jikan
 
 
 ListRecord = collections.namedtuple('ListRecord', ['mal_id', 'title', 'personal_score'])

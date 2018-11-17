@@ -6,7 +6,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from animator.db import get_db, query_db, update_db
+from animator.db import query_db, update_db
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -53,7 +53,7 @@ def login():
         error = None
         user = loop.run_until_complete(query_db(
             """
-            SELECT * FROM user WHERE username = ?'
+            SELECT * FROM user WHERE username = ?
             """,
             (username, ), one=True))
         if user is None:
@@ -75,10 +75,11 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?',
-            (user_id,)
-        ).fetchone()
+        g.user = loop.run_until_complete(query_db(
+            """
+            SELECT * FROM user WHERE id = ?
+            """,
+            (user_id, ), one=True))
 
 
 @bp.route('/logout')

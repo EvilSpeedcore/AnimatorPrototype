@@ -1,6 +1,7 @@
 #  TODO: Think about using OrderedDict in project just in case.
 #  TODO: Change order of anime list columns on index page.
 #  TODO: Update (clean up) requirements.txt
+import asyncio
 import json
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -12,11 +13,13 @@ from jikanpy.exceptions import APIException
 import pandas as pd
 
 from animator.auth import login_required
-from animator.db import get_db
+from animator.db import get_db, query_db
 from . import learning, parser
 
 
 bp = Blueprint('prediction', __name__)
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 
 @bp.route('/', methods=('GET', 'POST'))
@@ -24,14 +27,13 @@ def index():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('auth.login'))
-    data_set = get_db().execute(
+    data_set = loop.run_until_complete(query_db(
         """
         SELECT p.list 
         FROM profile p 
         WHERE p.profile_id = ?
         """,
-        (str(user_id))
-    ).fetchone()
+        (user_id, ), one=True))
     data = pd.DataFrame(json.loads(data_set['list'])) if data_set else pd.DataFrame()
     return render_template('prediction/index.html', data_set=data)
 
@@ -52,16 +54,15 @@ def predict():
             flash(message)
         else:
             #  TODO: Use session.get(user_id) instead of g.user['id']?. See recommendations.py
-            anime_list = get_db().execute(
-                """
-                SELECT list
-                FROM profile
-                WHERE profile_id = ?
-                """,
-                (str(g.user['id']))
-            ).fetchone()[0]
 
-            anime_list = json.loads(anime_list)
+            anime_list = loop.run_until_complete(query_db(
+                """
+                SELECT p.list 
+                FROM profile p 
+                WHERE p.profile_id = ?
+                """,
+                (g.user['id'], ), one=True))
+            anime_list = json.loads(anime_list[0])
             model = learning.ModelConstructor(anime_list).model
             if not model:
                 flash('Number of completed titles is too damn low!')
