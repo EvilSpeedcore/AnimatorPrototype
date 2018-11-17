@@ -30,7 +30,8 @@ class AnimePageInfo:
 
     @property
     def studio(self):
-        return self.anime_info['studios'][0]['name']
+        studios = self.anime_info.get('studios')
+        return studios[0]['name'] if studios else 'None found'
 
     @property
     def source(self):
@@ -81,20 +82,33 @@ class DataSetConstructor:
     def create_data_set(self):
         #  TODO: Think about putting ProcessPullExecutor part outside of class to keep track of progress.
         data_set = collections.defaultdict(list)
-        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+        counter = 0
+        with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
             for record in executor.map(DataSetConstructor.create_sample, self.anime_list):
+                #  TODO: See on average number of allowed requests.
+                counter += 1
+                print(counter)
                 for key, value in record.items():
                     data_set[key].append(value)
         return data_set
 
     @staticmethod
     def create_sample(record):
-        anime_page = AnimePageInfo(record.mal_id)
-        return {'Title': record.title,
-                'Type': anime_page.type,
-                'Episodes': anime_page.episodes,
-                'Studios': anime_page.studio,
-                'Source': anime_page.source,
-                'Genres': anime_page.genre,
-                'Score': anime_page.score,
-                'Personal score': record.personal_score}
+        time.sleep(0.5)
+        try:
+            anime_page = AnimePageInfo(record.mal_id)
+        except Exception as e:
+            print(e)
+            time.sleep(5)
+            return DataSetConstructor.create_data_set(record)
+        else:
+            #  TODO: It is cumbersome to list all properties. Put them into structure in AnimePagInfo class?
+            record = {'Title': anime_page.title,
+                      'Type': anime_page.type,
+                      'Episodes': anime_page.episodes,
+                      'Studios': anime_page.studio,
+                      'Source': anime_page.source,
+                      'Genres': anime_page.genre,
+                      'Score': anime_page.score,
+                      'Personal score': record.personal_score}
+            return record
