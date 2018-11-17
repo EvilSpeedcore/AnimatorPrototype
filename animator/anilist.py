@@ -8,7 +8,7 @@ from flask import (
 import pandas as pd
 
 from . import parser
-from animator.db import update_db
+from animator.db import DBController
 from animator.auth import login_required
 
 
@@ -30,6 +30,8 @@ def create():
         mal_username = request.form['mal_username']
         error = None
         if not mal_username:
+            #  Works file when pressed first on loading page.
+            #  If pressed after no file error, there is no error and request is /upload, not /create.
             error = 'MyAnimeList username is required.'
         if error is not None:
             flash(error)
@@ -37,13 +39,13 @@ def create():
             user = parser.MALUser(mal_username)
             set_constructor = parser.DataSetConstructor(user.anime_list)
             data = json.dumps(set_constructor.create_data_set())
-
-            loop.run_until_complete(update_db(
+            DBController.update(
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
                 VALUES (?, ?, ?, ?);
                 """,
-                (mal_username, g.user['id'], 'None', data)))
+                (mal_username, g.user['id'], 'None', data), loop=loop
+            )
             return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
@@ -62,10 +64,11 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            loop.run_until_complete(update_db(
+            DBController.update(
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);
+                VALUES (?, ?, ?, ?);        
                 """,
-                ('None', g.user['id'], 'None', data)))
+                ('None', g.user['id'], 'None', data), loop=loop
+            )
             return redirect(url_for('prediction.index'))

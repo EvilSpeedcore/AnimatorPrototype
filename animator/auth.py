@@ -6,7 +6,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from animator.db import query_db, update_db
+from animator.db import DBController
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -20,28 +20,24 @@ def register():
         username = request.form['username']
         password = request.form['password']
         error = None
-
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif loop.run_until_complete(query_db(
+        elif DBController.query(
                 """
                 SELECT id FROM user WHERE username = ?
                 """,
-                (username, ), one=True
-        )) is not None:
+                (username, ), is_one=True, loop=loop) is not None:
             error = 'User {} is already registered.'.format(username)
         if error is None:
-            loop.run_until_complete(update_db(
+            DBController.update(
                 """
                 INSERT INTO user (username, password) VALUES (?, ?)
                 """,
-                (username, generate_password_hash(password))))
+                (username, generate_password_hash(password)), loop=loop)
             return redirect(url_for('auth.login'))
-
         flash(error)
-
     return render_template('auth/register.html')
 
 
@@ -51,11 +47,11 @@ def login():
         username = request.form['username']
         password = request.form['password']
         error = None
-        user = loop.run_until_complete(query_db(
+        user = DBController.query(
             """
             SELECT * FROM user WHERE username = ?
             """,
-            (username, ), one=True))
+            (username, ), is_one=True, loop=loop)
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
@@ -75,11 +71,11 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = loop.run_until_complete(query_db(
+        g.user = DBController.query(
             """
             SELECT * FROM user WHERE id = ?
             """,
-            (user_id, ), one=True))
+            (user_id, ), is_one=True, loop=loop)
 
 
 @bp.route('/logout')
