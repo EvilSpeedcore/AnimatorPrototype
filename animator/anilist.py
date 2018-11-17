@@ -56,11 +56,8 @@ def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('Please, select file to upload.')
-            return render_template('list_creation/create_list.html')
-        file = request.files['file']
-        if not file.filename:
-            flash('No selected file.')
-            return render_template('list_creation/create_list.html')
+            return redirect(url_for('anilist.create'))
+        file = request.files.get('file')
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
