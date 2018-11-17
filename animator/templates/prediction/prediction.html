@@ -48,9 +48,9 @@
         <p>Accuracy on train subset: {{ train_accuracy }}</p>
         <p>Accuracy on test subset: {{ test_accuracy }}</p>
         {% if prediction %}
-        <p>The algorithm thought that you would like {{ anime_page_data['Title'] }}.</p>
+        <p>The algorithm thought that you would like {{ anime_page_data.title }}.</p>
         {% else %}
-        <p>The algorithm thought that you would not like {{ anime_page_data['Title'] }}.</p>
+        <p>The algorithm thought that you would not like {{ anime_page_data.title }}.</p>
         {% endif %}
         <hr>
         <p class="mb-0">Watch what you feel like you want to watch and listen to no one.</p>

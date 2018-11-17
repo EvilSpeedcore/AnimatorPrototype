@@ -1,24 +1,27 @@
+import asyncio
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
 from animator.auth import login_required
-from animator.db import get_db
+from animator.db import DBController
 
 
 bp = Blueprint('recommendations', __name__)
+loop = asyncio.get_event_loop()
 
 
 @bp.route('/recommendations', methods=('GET', 'POST'))
 @login_required
 def show_recommendations():
-
-    recommendations = get_db().execute(
+    #  TODO: Add URL to title.
+    recommendations = DBController.query(
+        loop,
         """
         SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score
         FROM recommendations r
         WHERE r.profile_id = ?
         """,
-        (str(session.get('user_id')))
-    ).fetchall()
+        (session.get('user_id'), ), is_one=False)
     return render_template('recommendations/recommendations.html', recommendations=recommendations)

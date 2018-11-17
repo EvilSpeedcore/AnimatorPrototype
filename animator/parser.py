@@ -1,6 +1,7 @@
 #  TODO: Put classes into different files
 import collections
 import concurrent.futures
+import time
 import unicodedata
 
 from jikanpy import Jikan

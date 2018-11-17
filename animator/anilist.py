@@ -1,3 +1,4 @@
+import asyncio
 import json
 import io
 
@@ -7,11 +8,12 @@ from flask import (
 import pandas as pd
 
 from . import parser
-from animator.db import get_db
+from animator.db import DBController
 from animator.auth import login_required
 
 
 bp = Blueprint('anilist', __name__)
+loop = asyncio.get_event_loop()
 
 
 @bp.route('/update', methods=('GET', 'POST'))
@@ -27,6 +29,8 @@ def create():
         mal_username = request.form['mal_username']
         error = None
         if not mal_username:
+            #  Works file when pressed first on loading page.
+            #  If pressed after no file error, there is no error and request is /upload, not /create.
             error = 'MyAnimeList username is required.'
         if error is not None:
             flash(error)
@@ -34,14 +38,14 @@ def create():
             user = parser.MALUser(mal_username)
             set_constructor = parser.DataSetConstructor(user.anime_list)
             data = json.dumps(set_constructor.create_data_set())
-            get_db().execute(
+            DBController.update(
+                loop,
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
                 VALUES (?, ?, ?, ?);
                 """,
                 (mal_username, g.user['id'], 'None', data)
             )
-            get_db().commit()
             return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
@@ -60,12 +64,12 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            get_db().execute(
+            DBController.update(
+                loop,
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);
+                VALUES (?, ?, ?, ?);        
                 """,
                 ('None', g.user['id'], 'None', data)
             )
-            get_db().commit()
             return redirect(url_for('prediction.index'))
