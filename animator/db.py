@@ -79,6 +79,7 @@ def close_db(e=None):
 
 
 def init_db():
+    #  TODO: Replace with async version?s
     db = get_db()
 
     with current_app.open_resource('schema.sql') as f:
