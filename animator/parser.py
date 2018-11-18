@@ -1,10 +1,14 @@
 #  TODO: Put classes into different files
 import collections
 import concurrent.futures
+import pathlib
 import time
 import unicodedata
+import urllib.parse
 
+import bs4
 from jikanpy import Jikan
+import requests
 
 
 ListRecord = collections.namedtuple('ListRecord', ['mal_id', 'title', 'personal_score'])
@@ -49,22 +53,40 @@ class AnimePageInfo:
 class AnimeList:
 
     def __init__(self, user):
-        self.anime_list = Jikan().user(username=user, request='animelist')['anime']
-        self.completed_anime = [title for title in self.anime_list if title['watching_status'] == 2]
+        self.owner = user
+        self.site_url = 'https://myanimelist.net'
+        self.url = '/'.join((self.site_url, 'animelist', self.owner))
+        self.anime_list = self.form_list()
         self._index = 0
+
+    def form_list(self):
+        session = requests.session()
+        response = session.get(self.url, params={'status': '2', 'tag': ''})
+        data = response.text
+        #  TODO: Add soup strainer.
+        soup = bs4.BeautifulSoup(data, 'lxml')
+        anime_list = soup.find('div', attrs={'id': 'list_surround'})
+        anime = []
+        for link in anime_list.find_all('a', attrs={'class': 'animetitle'}):
+            title = unicodedata.normalize('NFC', link.text.strip())
+            url = urllib.parse.urljoin(self.site_url, link.get('href'))
+            anime_id = pathlib.Path(url).parts[3]
+            score_cell = link.parent.next_sibling.next_sibling
+            score = score_cell.text.strip()
+            score = int(score) if score.isdigit() else 0
+            anime.append(ListRecord(anime_id, title, score))
+        return anime
 
     def __iter__(self):
         return self
 
     def __next__(self):
         try:
-            item = self.completed_anime[self._index]
+            item = self.anime_list[self._index]
         except IndexError:
             raise StopIteration
         self._index += 1
-        title = unicodedata.normalize('NFC', item['title'])
-        score = item['score'] if isinstance(item['score'], int) else 0
-        return ListRecord(item['mal_id'], title, score)
+        return item
 
 
 class MALUser:
@@ -85,11 +107,12 @@ class DataSetConstructor:
         counter = 0
         with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
             for record in executor.map(DataSetConstructor.create_sample, self.anime_list):
-                #  TODO: See on average number of allowed requests.
                 counter += 1
                 print(counter)
                 for key, value in record.items():
                     data_set[key].append(value)
+                if counter % 100 == 0:
+                    time.sleep(15)
         return data_set
 
     @staticmethod
@@ -99,7 +122,7 @@ class DataSetConstructor:
             anime_page = AnimePageInfo(record.mal_id)
         except Exception as e:
             print(e)
-            time.sleep(5)
+            time.sleep(15)
             return DataSetConstructor.create_sample(record)
         else:
             #  TODO: It is cumbersome to list all properties. Put them into structure in AnimePagInfo class?
