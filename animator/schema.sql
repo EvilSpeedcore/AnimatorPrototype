@@ -12,7 +12,6 @@ CREATE TABLE profile (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id INTEGER UNIQUE NOT NULL,
   mal_username TEXT  NOT NULL,
-  url TEXT NOT NULL,
   list TEXT NOT NULL,
   FOREIGN KEY (profile_id) REFERENCES user (id)
 );
@@ -27,5 +26,6 @@ CREATE TABLE recommendations (
   src TEXT NOT NULL,
   genre TEXT NOT NULL,
   score TEXT NOT NULL,
+  synopsis TEXT NOT NULL,
   FOREIGN KEY (profile_id) REFERENCES user (id)
 );

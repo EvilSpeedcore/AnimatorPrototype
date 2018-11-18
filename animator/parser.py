@@ -49,6 +49,10 @@ class AnimePageInfo:
     def score(self):
         return self.anime_info['score']
 
+    @property
+    def synopsis(self):
+        return self.anime_info['synopsis']
+
 
 class AnimeList:
 
