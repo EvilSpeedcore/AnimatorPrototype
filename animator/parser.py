@@ -94,13 +94,13 @@ class DataSetConstructor:
 
     @staticmethod
     def create_sample(record):
-        time.sleep(0.5)
+        time.sleep(1)
         try:
             anime_page = AnimePageInfo(record.mal_id)
         except Exception as e:
             print(e)
             time.sleep(5)
-            return DataSetConstructor.create_data_set(record)
+            return DataSetConstructor.create_sample(record)
         else:
             #  TODO: It is cumbersome to list all properties. Put them into structure in AnimePagInfo class?
             record = {'Title': anime_page.title,
