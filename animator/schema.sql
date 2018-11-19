@@ -27,5 +27,6 @@ CREATE TABLE recommendations (
   genre TEXT NOT NULL,
   score TEXT NOT NULL,
   synopsis TEXT NOT NULL,
+  image_url TEXT NOT NULL,
   FOREIGN KEY (profile_id) REFERENCES user (id)
 );

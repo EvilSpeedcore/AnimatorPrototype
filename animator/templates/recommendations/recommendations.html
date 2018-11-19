@@ -28,20 +28,27 @@
         </thead>
         <tbody>
             {% for recommendation in recommendations %}
-            <tr data-toggle="collapse" data-target="#{{loop.index}}" class="accordion-toggle">
+            {% set outer_loop = loop %}
+            <tr>
             {% for key in recommendation.keys() %}
                 {% if key == 'title' %}
                 <td>{{ recommendation[key] }}
-                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target=".bd-example-modal-lg">Info</button>
-                    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target=".{{ outer_loop.index }}">Info</button>
+                    <div class="modal fade {{ outer_loop.index }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                ...
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-sm-4"> <img src="{{ recommendation['image_url'] }}"></div>
+                                        <div class="col-sm-8"> {{ recommendation['synopsis'] }}
+                                            <p style="margin: 20px 0 10px" align="center"><a href="google.com"> Visit page </a></p>
+                                        </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
                 </td>
-                {% else %}
+                {% elif key != 'synopsis' and key != 'image_url' %}
                 <td>{{ recommendation[key] }}</td>
                 {% endif %}
                 {% endfor %}

@@ -19,7 +19,7 @@ def show_recommendations():
     recommendations = DBController.query(
         loop,
         """
-        SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score
+        SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score, r.synopsis, r.image_url
         FROM recommendations r
         WHERE r.profile_id = ?
         """,
