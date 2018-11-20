@@ -72,8 +72,8 @@ def predict():
                 query = (
                     """
                     INSERT OR IGNORE INTO recommendations(profile_id, title, anime_type, episodes, studio, src, genre,
-                                                          score, synopsis, image_url)
-                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                                          score, synopsis, image_url, url)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """)
                 if prediction:
                     #  TODO: Store json object in recommendations table instead of many columns?
@@ -89,7 +89,8 @@ def predict():
                          anime_page_data.genre,
                          anime_page_data.score,
                          anime_page_data.synopsis,
-                         anime_page_data.image_url
+                         anime_page_data.image_url,
+                         anime_page_data.url
                          ))
                 return render_template('prediction/prediction.html',
                                        anime_page_data=anime_page_data,

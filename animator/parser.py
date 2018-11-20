@@ -58,6 +58,11 @@ class AnimePageInfo:
     def image_url(self):
         return self.anime_info['image_url']
 
+    @property
+    def url(self):
+        return self.anime_info['url']
+
+
 class AnimeList:
 
     def __init__(self, user):
