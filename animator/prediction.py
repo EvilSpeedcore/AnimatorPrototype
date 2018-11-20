@@ -71,10 +71,12 @@ def predict():
                 prediction, train_accuracy, test_accuracy = predictor.make_prediction(anime_page_data)
                 query = (
                     """
-                    INSERT OR IGNORE INTO recommendations(profile_id,title,anime_type,episodes,studio,src,genre,score)
-                    VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT OR IGNORE INTO recommendations(profile_id, title, anime_type, episodes, studio, src, genre,
+                                                          score, synopsis, image_url, url)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """)
                 if prediction:
+                    #  TODO: Store json object in recommendations table instead of many columns?
                     DBController.update(
                         loop,
                         query,
@@ -85,7 +87,10 @@ def predict():
                          anime_page_data.studio,
                          anime_page_data.source,
                          anime_page_data.genre,
-                         anime_page_data.score
+                         anime_page_data.score,
+                         anime_page_data.synopsis,
+                         anime_page_data.image_url,
+                         anime_page_data.url
                          ))
                 return render_template('prediction/prediction.html',
                                        anime_page_data=anime_page_data,

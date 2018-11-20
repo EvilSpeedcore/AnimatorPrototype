@@ -41,10 +41,10 @@ def create():
                 DBController.update(
                     loop,
                     """
-                    INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                    VALUES (?, ?, ?, ?);
+                    INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+                    VALUES (?, ?, ?)
                     """,
-                    (mal_username, g.user['id'], 'None', data)
+                    (mal_username, g.user['id'], data)
                 )
                 return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
@@ -64,9 +64,9 @@ def upload_file():
             DBController.update(
                 loop,
                 """
-                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);        
+                INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+                VALUES (?, ?, ?)       
                 """,
-                ('None', g.user['id'], 'None', data)
+                ('None', g.user['id'], data)
             )
             return redirect(url_for('prediction.index'))
