@@ -54,7 +54,6 @@
                 {% if key == 'score' %}
                 <td><button class="btn btn-warning btn-xs" onclick="location.href='{{ url_for('recommendations.test', row_id=recommendation['title'])}}'" type="button">X</button></td>
                 {% endif %}
-
                 {% endfor %}
             </tr>
             {% endfor %}
