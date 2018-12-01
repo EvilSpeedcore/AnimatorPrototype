@@ -6,10 +6,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='prediction.css') }}">
 <main role="main" class="loader-container">
     <form class="form-inline" method="post">
-        <div class="form-group"></div>
         <p class="form-control-static"></p>
         <label for="anime_url" class="sr-only">Anime URL</label>
-        <input name="anime_url" id="anime_url" value="{{ request.form['anime_url'] }}" class="form-control" placeholder="Anime URL">
+        <input name="anime_url" id="anime_url" onfocus="this.value=''" value="{{ request.form['anime_url'] }}" class="form-control" placeholder="Anime URL">
         <button type="submit" class="btn btn-info">Predict</button>
     </form>
     {% for message in get_flashed_messages() %}
