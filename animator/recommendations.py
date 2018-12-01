@@ -25,3 +25,27 @@ def show_recommendations():
         """,
         (session.get('user_id'), ), is_one=False)
     return render_template('recommendations/recommendations.html', recommendations=recommendations)
+
+
+@bp.route('/delete/<int:row_id>', methods=('GET', 'POST'))
+@login_required
+def test(row_id):
+    print(row_id)
+    DBController.update(loop,
+                        """
+                        DELETE FROM recommendations
+                        WHERE id = ?
+                        """,
+                        (row_id, ))
+    DBController.update(loop, 'DBCC CHECKIDENT (recommendation, RESEED, 1)')
+
+    recommendations = DBController.query(
+        loop,
+        """
+        SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score, r.synopsis, r.image_url, r.url
+        FROM recommendations r
+        WHERE r.profile_id = ?
+        """,
+        (session.get('user_id'), ), is_one=False)
+    print(recommendations)
+    return render_template('recommendations/recommendations.html', recommendations=recommendations)

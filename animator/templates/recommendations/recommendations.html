@@ -34,6 +34,8 @@
                 {% if key == 'title' %}
                 <td>{{ recommendation[key] }}
                     <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target=".{{ outer_loop.index }}">Info</button>
+
+                    <a href="{{ url_for('recommendations.test', row_id=outer_loop.index)}}"> sdas </a>
                     <div class="modal fade {{ outer_loop.index }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -51,6 +53,10 @@
                 {% elif key != 'synopsis' and key != 'image_url' and key != 'url' %}
                 <td>{{ recommendation[key] }}</td>
                 {% endif %}
+                {% if key == 'score' %}
+                <td><button class="btn btn-warning btn-xs" onclick="location.href='{{ url_for('recommendations.test', row_id=outer_loop.index)}}'" type="button">X</button></td>
+                {% endif %}
+
                 {% endfor %}
             </tr>
             {% endfor %}
