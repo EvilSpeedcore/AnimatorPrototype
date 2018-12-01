@@ -19,7 +19,6 @@ class AnimePageInfo:
     def __init__(self, anime_id):
         self.anime_id = anime_id
         self.anime_info = Jikan().anime(self.anime_id)
-        print(self.anime_info)
 
     @property
     def title(self):

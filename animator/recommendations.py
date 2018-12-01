@@ -12,10 +12,7 @@ bp = Blueprint('recommendations', __name__)
 loop = asyncio.get_event_loop()
 
 
-@bp.route('/recommendations', methods=('GET', 'POST'))
-@login_required
-def show_recommendations():
-    #  TODO: Add URL to title.
+def get_user_recommendations():
     recommendations = DBController.query(
         loop,
         """
@@ -24,4 +21,25 @@ def show_recommendations():
         WHERE r.profile_id = ?
         """,
         (session.get('user_id'), ), is_one=False)
+    return recommendations
+
+
+@bp.route('/recommendations', methods=('GET', 'POST'))
+@login_required
+def show_recommendations():
+    #  TODO: Add URL to title.
+    recommendations = get_user_recommendations()
+    return render_template('recommendations/recommendations.html', recommendations=recommendations)
+
+
+@bp.route('/delete', methods=('GET', 'POST'))
+@login_required
+def test():
+    DBController.update(loop,
+                        """
+                        DELETE FROM recommendations
+                        WHERE title = ?
+                        """,
+                        (request.args.get('row_id'), ))
+    recommendations = get_user_recommendations()
     return render_template('recommendations/recommendations.html', recommendations=recommendations)
