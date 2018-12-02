@@ -20,15 +20,14 @@
 </main>
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
-            <div class="row">
-                <div class="col-md-2">
-                    <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.update') }}'" type="button">Update list</button>
-                </div>
-                <div class="col-md-6">
-                    <button class="btn btn-default" onclick="location.href='{{ url_for('prediction.predict') }}'" type="button">Make prediction</button>
-                </div>
-            </div>
+        <div class="col-md-1">
+            <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.open_new_entry_from') }}'" type="button">Add title...</button>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-default" onclick="location.href='{{ url_for('prediction.predict') }}'" type="button">Make prediction</button>
+        </div>
+        <div align="right" class="col-md-10">
+            <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.update') }}'" type="button">Update list</button>
         </div>
     </div>
 </div>

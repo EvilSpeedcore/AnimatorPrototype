@@ -34,7 +34,7 @@ def show_recommendations():
 
 @bp.route('/delete', methods=('GET', 'POST'))
 @login_required
-def test():
+def delete_recommendation():
     DBController.update(loop,
                         """
                         DELETE FROM recommendations

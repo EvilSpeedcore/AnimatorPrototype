@@ -70,3 +70,37 @@ def upload_file():
                 ('None', g.user['id'], data)
             )
             return redirect(url_for('prediction.index'))
+
+
+@bp.route('/new_title', methods=['GET', 'POST'])
+@login_required
+def open_new_entry_from():
+    return render_template('list_creation/add_title.html')
+
+
+@bp.route('/add_title', methods=['GET', 'POST'])
+@login_required
+def add_title():
+    if request.method == 'POST':
+        anime_list = DBController.query(
+            loop,
+            """
+            SELECT p.list 
+            FROM profile p 
+            WHERE p.profile_id = ?
+            """,
+            (g.user['id'], ), is_one=True)
+        anime_list = json.loads(anime_list['list'])
+
+        for key, value in request.form.items():
+            anime_list[key].append(value)
+
+        DBController.update(
+            loop,
+            """
+            INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+            VALUES (?, ?, ?)       
+            """,
+            ('None', g.user['id'], json.dumps(anime_list))
+        )
+    return redirect(url_for('prediction.index'))
