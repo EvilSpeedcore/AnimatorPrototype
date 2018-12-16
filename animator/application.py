@@ -1,3 +1,4 @@
 from animator import create_app, db
 app = create_app()
-db.init_db()
+app.app_context().push()
+db.init_db(app)

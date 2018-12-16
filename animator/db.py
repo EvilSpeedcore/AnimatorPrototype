@@ -47,16 +47,17 @@ def close_db(e=None):
         db.close()
 
 
-def init_db():
+def init_db(app):
     #  TODO: Replace with async version?
-    db = sqlite3.connect(current_app.config['DATABASE'], detect_types=sqlite3.PARSE_DECLTYPES)
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    with app.app_context():
+        db = sqlite3.connect(current_app.config['DATABASE'], detect_types=sqlite3.PARSE_DECLTYPES)
+        with current_app.open_resource('schema.sql') as f:
+            db.executescript(f.read().decode('utf8'))
 
 
 @click.command('initdb')
 @with_appcontext
 def init_db_command():
     """Clear the existing data and create new tables."""
-    init_db()
+    #  init_db()
     click.echo('Initialized the database.')
