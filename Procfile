@@ -1,1 +1,0 @@
-web: gunicorn animator.wsgi:app
