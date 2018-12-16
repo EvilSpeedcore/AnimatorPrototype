@@ -59,5 +59,5 @@ def init_db(app):
 @with_appcontext
 def init_db_command():
     """Clear the existing data and create new tables."""
-    #  init_db()
+    init_db()
     click.echo('Initialized the database.')
