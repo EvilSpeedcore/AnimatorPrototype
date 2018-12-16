@@ -1,10 +1,8 @@
 table.dataframe, .dataframe th, .dataframe td {
   border: none;
   border-collapse: collapse;
-  text-align: left;
   padding: 10px;
   margin-bottom: 20px;
-  font-size: 1.05em;
 }
 
 .dataframe tbody { display:block; max-height:450px; overflow-y:scroll; }

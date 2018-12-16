@@ -1,9 +1,14 @@
 #  TODO: Put classes into different files
 import collections
 import concurrent.futures
+import pathlib
+import time
 import unicodedata
+import urllib.parse
 
+import bs4
 from jikanpy import Jikan
+import requests
 
 
 ListRecord = collections.namedtuple('ListRecord', ['mal_id', 'title', 'personal_score'])
@@ -29,7 +34,8 @@ class AnimePageInfo:
 
     @property
     def studio(self):
-        return self.anime_info['studios'][0]['name']
+        studios = self.anime_info.get('studios')
+        return studios[0]['name'] if studios else 'None found'
 
     @property
     def source(self):
@@ -43,26 +49,56 @@ class AnimePageInfo:
     def score(self):
         return self.anime_info['score']
 
+    @property
+    def synopsis(self):
+        return self.anime_info['synopsis']
+
+    @property
+    def image_url(self):
+        return self.anime_info['image_url']
+
+    @property
+    def url(self):
+        return self.anime_info['url']
+
 
 class AnimeList:
 
     def __init__(self, user):
-        self.anime_list = Jikan().user(username=user, request='animelist')['anime']
-        self.completed_anime = [title for title in self.anime_list if title['watching_status'] == 2]
+        self.owner = user
+        self.site_url = 'https://myanimelist.net'
+        self.url = '/'.join((self.site_url, 'animelist', self.owner))
+        self.anime_list = self.form_list()
         self._index = 0
+
+    def form_list(self):
+        session = requests.session()
+        response = session.get(self.url, params={'status': '2', 'tag': ''})
+        data = response.text
+        #  TODO: Add soup strainer.
+        soup = bs4.BeautifulSoup(data, 'lxml')
+        anime_list = soup.find('div', attrs={'id': 'list_surround'})
+        anime = []
+        for link in anime_list.find_all('a', attrs={'class': 'animetitle'}):
+            title = unicodedata.normalize('NFC', link.text.strip())
+            url = urllib.parse.urljoin(self.site_url, link.get('href'))
+            anime_id = pathlib.Path(url).parts[3]
+            score_cell = link.parent.next_sibling.next_sibling
+            score = score_cell.text.strip()
+            score = int(score) if score.isdigit() else 0
+            anime.append(ListRecord(anime_id, title, score))
+        return anime
 
     def __iter__(self):
         return self
 
     def __next__(self):
         try:
-            item = self.completed_anime[self._index]
+            item = self.anime_list[self._index]
         except IndexError:
             raise StopIteration
         self._index += 1
-        title = unicodedata.normalize('NFC', item['title'])
-        score = item['score'] if isinstance(item['score'], int) else 0
-        return ListRecord(item['mal_id'], title, score)
+        return item
 
 
 class MALUser:
@@ -80,20 +116,34 @@ class DataSetConstructor:
     def create_data_set(self):
         #  TODO: Think about putting ProcessPullExecutor part outside of class to keep track of progress.
         data_set = collections.defaultdict(list)
-        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
+        counter = 0
+        with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
             for record in executor.map(DataSetConstructor.create_sample, self.anime_list):
+                counter += 1
+                print(counter)
                 for key, value in record.items():
                     data_set[key].append(value)
+                if counter % 100 == 0:
+                    time.sleep(15)
         return data_set
 
     @staticmethod
     def create_sample(record):
-        anime_page = AnimePageInfo(record.mal_id)
-        return {'Title': record.title,
-                'Type': anime_page.type,
-                'Episodes': anime_page.episodes,
-                'Studios': anime_page.studio,
-                'Source': anime_page.source,
-                'Genres': anime_page.genre,
-                'Score': anime_page.score,
-                'Personal score': record.personal_score}
+        time.sleep(1)
+        try:
+            anime_page = AnimePageInfo(record.mal_id)
+        except Exception as e:
+            print(e)
+            time.sleep(15)
+            return DataSetConstructor.create_sample(record)
+        else:
+            #  TODO: It is cumbersome to list all properties. Put them into structure in AnimePagInfo class?
+            record = {'Title': anime_page.title,
+                      'Type': anime_page.type,
+                      'Episodes': anime_page.episodes,
+                      'Studios': anime_page.studio,
+                      'Source': anime_page.source,
+                      'Genres': anime_page.genre,
+                      'Score': anime_page.score,
+                      'Personal score': record.personal_score}
+            return record

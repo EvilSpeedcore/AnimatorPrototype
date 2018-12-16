@@ -11,10 +11,10 @@
 </main>
 {% else %}
 <div class="container">
-    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recommendation-table.css') }}">
     <h2 align="center">Recommendations</h2>
     <hr>
-    <table class="table">
+    <table class="table table-condensed" style="border-collapse:collapse;">
         <thead>
         <tr>
             <th scope="col">Title</th>
@@ -27,12 +27,35 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
             {% for recommendation in recommendations %}
+            {% set outer_loop = loop %}
+            <tr>
             {% for key in recommendation.keys() %}
-            <td>{{ recommendation[key] }}</td>
-            {% endfor %}
-        </tr>
+                {% if key == 'title' %}
+                <td>{{ recommendation[key] }}
+                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target=".{{ outer_loop.index }}">Info</button>
+                    <div class="modal fade {{ outer_loop.index }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-sm-4"> <img src="{{ recommendation['image_url'] }}"></div>
+                                        <div class="col-sm-8"> {{ recommendation['synopsis'] }}
+                                            <p style="margin: 5px 0 10px" align="center"><a href="{{ recommendation['url'] }}"> Visit page </a></p>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                {% elif key != 'synopsis' and key != 'image_url' and key != 'url' %}
+                <td>{{ recommendation[key] }}</td>
+                {% endif %}
+                {% if key == 'score' %}
+                <td><button class="btn btn-warning btn-xs" onclick="location.href='{{ url_for('recommendations.delete_recommendation', row_id=recommendation['title'])}}'" type="button">X</button></td>
+                {% endif %}
+                {% endfor %}
+            </tr>
             {% endfor %}
         </tbody>
     </table>

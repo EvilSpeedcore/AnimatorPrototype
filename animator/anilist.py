@@ -1,17 +1,20 @@
+import asyncio
 import json
 import io
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+import jikanpy.exceptions
 import pandas as pd
 
 from . import parser
-from animator.db import get_db
+from animator.db import DBController
 from animator.auth import login_required
 
 
 bp = Blueprint('anilist', __name__)
+loop = asyncio.get_event_loop()
 
 
 @bp.route('/update', methods=('GET', 'POST'))
@@ -25,24 +28,25 @@ def update():
 def create():
     if request.method == 'POST':
         mal_username = request.form['mal_username']
-        error = None
         if not mal_username:
-            error = 'MyAnimeList username is required.'
-        if error is not None:
-            flash(error)
+            flash('MyAnimeList username is required.')
         else:
-            user = parser.MALUser(mal_username)
-            set_constructor = parser.DataSetConstructor(user.anime_list)
-            data = json.dumps(set_constructor.create_data_set())
-            get_db().execute(
-                """
-                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);
-                """,
-                (mal_username, g.user['id'], 'None', data)
-            )
-            get_db().commit()
-            return redirect(url_for('prediction.index'))
+            try:
+                user = parser.MALUser(mal_username)
+            except jikanpy.exceptions.APIException:
+                flash('Invalid username.')
+            else:
+                set_constructor = parser.DataSetConstructor(user.anime_list)
+                data = json.dumps(set_constructor.create_data_set())
+                DBController.update(
+                    loop,
+                    """
+                    INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+                    VALUES (?, ?, ?)
+                    """,
+                    (mal_username, g.user['id'], data)
+                )
+                return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
 
@@ -52,20 +56,51 @@ def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('Please, select file to upload.')
-            return render_template('list_creation/create_list.html')
-        file = request.files['file']
-        if not file.filename:
-            flash('No selected file.')
-            return render_template('list_creation/create_list.html')
+            return redirect(url_for('anilist.create'))
+        file = request.files.get('file')
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            get_db().execute(
+            DBController.update(
+                loop,
                 """
-                INSERT OR REPLACE INTO profile(mal_username, profile_id, url, list)
-                VALUES (?, ?, ?, ?);
+                INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+                VALUES (?, ?, ?)       
                 """,
-                ('None', g.user['id'], 'None', data)
+                ('None', g.user['id'], data)
             )
-            get_db().commit()
             return redirect(url_for('prediction.index'))
+
+
+@bp.route('/new_title', methods=['GET', 'POST'])
+@login_required
+def open_new_entry_from():
+    return render_template('list_creation/add_title.html')
+
+
+@bp.route('/add_title', methods=['GET', 'POST'])
+@login_required
+def add_title():
+    if request.method == 'POST':
+        anime_list = DBController.query(
+            loop,
+            """
+            SELECT p.list 
+            FROM profile p 
+            WHERE p.profile_id = ?
+            """,
+            (g.user['id'], ), is_one=True)
+        anime_list = json.loads(anime_list['list'])
+
+        for key, value in request.form.items():
+            anime_list[key].append(value)
+
+        DBController.update(
+            loop,
+            """
+            INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
+            VALUES (?, ?, ?)       
+            """,
+            ('None', g.user['id'], json.dumps(anime_list))
+        )
+    return redirect(url_for('prediction.index'))

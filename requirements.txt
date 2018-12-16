@@ -1,6 +1,8 @@
 aiohttp==3.4.4
+aiosqlite==0.8.0
 async-timeout==3.0.1
 attrs==18.2.0
+beautifulsoup4==4.6.3
 certifi==2018.8.24
 chardet==3.0.4
 Click==7.0

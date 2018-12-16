@@ -6,10 +6,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='prediction.css') }}">
 <main role="main" class="loader-container">
     <form class="form-inline" method="post">
-        <div class="form-group"></div>
         <p class="form-control-static"></p>
         <label for="anime_url" class="sr-only">Anime URL</label>
-        <input name="anime_url" id="anime_url" value="{{ request.form['anime_url'] }}" class="form-control" placeholder="Anime URL">
+        <input name="anime_url" id="anime_url" onfocus="this.value=''" value="{{ request.form['anime_url'] }}" class="form-control" placeholder="Anime URL">
         <button type="submit" class="btn btn-info">Predict</button>
     </form>
     {% for message in get_flashed_messages() %}
@@ -48,9 +47,9 @@
         <p>Accuracy on train subset: {{ train_accuracy }}</p>
         <p>Accuracy on test subset: {{ test_accuracy }}</p>
         {% if prediction %}
-        <p>The algorithm thought that you would like {{ anime_page_data['Title'] }}.</p>
+        <p>The algorithm thought that you would like {{ anime_page_data.title }}.</p>
         {% else %}
-        <p>The algorithm thought that you would not like {{ anime_page_data['Title'] }}.</p>
+        <p>The algorithm thought that you would not like {{ anime_page_data.title }}.</p>
         {% endif %}
         <hr>
         <p class="mb-0">Watch what you feel like you want to watch and listen to no one.</p>
