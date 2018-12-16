@@ -1,1 +1,1 @@
-web: gunicorn animator:app
+web: gunicorn wsgi:app
