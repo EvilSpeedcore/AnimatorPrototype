@@ -1,2 +1,2 @@
 web: gunicorn animator.wsgi:app
-init: python flask initdb
+init: python animator.init_db:database
