@@ -1,2 +1,2 @@
-from animator import create_app, db
+from animator import create_app
 app = create_app()
