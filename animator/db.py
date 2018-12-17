@@ -1,5 +1,5 @@
 from flask import g
-import pyodbc
+import pypyodbc as pyodbc
 
 CONNECTION_STRING = 'Driver={ODBC Driver 13 for SQL Server};Server=tcp:animator.database.windows.net,1433;Database=anime;Uid=Bamboocha@animator;Pwd=Qjcvsylsh1;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 

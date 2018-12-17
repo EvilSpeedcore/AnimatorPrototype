@@ -28,6 +28,7 @@ pefile==2018.8.8
 Pygments==2.2.0
 PyInstaller==3.4
 pyodbc==4.0.25
+pypyodbc==1.3.4
 python-dateutil==2.7.3
 python-dotenv==0.9.1
 pytz==2018.5
