@@ -32,6 +32,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    db.init_app(app)
+
     app.register_blueprint(auth.bp)
     app.register_blueprint(anilist.bp)
     app.register_blueprint(prediction.bp)
