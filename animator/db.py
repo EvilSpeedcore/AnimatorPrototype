@@ -26,15 +26,18 @@ class DBController:
     @staticmethod
     def update(query, args):
         db = DBController.get_connection()
-        db.execute(query, args)
+        cursor = db.cursor()
+        cursor.execute(query, args)
         db.commit()
-        db.close()
+        cursor.close()
 
     @staticmethod
     def query(query, args, is_one):
-        cursor = DBController.get_connection().cursor()
+        db = DBController.get_connection()
+        cursor = db.cursor()
         cursor.execute(query, args)
         result = cursor.fetchone() if is_one else cursor.fetchall()
+        cursor.close()
         return result
 
 
