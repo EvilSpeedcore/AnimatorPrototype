@@ -4,7 +4,7 @@ import os
 
 app = create_app()
 b = os.path.join(app.instance_path, 'anime.sqlite')
-
+print(b)
 conn = sqlite3.connect(b)
 c = conn.cursor()
 
