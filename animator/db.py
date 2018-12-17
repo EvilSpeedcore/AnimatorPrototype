@@ -14,27 +14,26 @@ class DBController:
 
     @staticmethod
     def get_connection():
-        if 'db' not in g:
-            g.db = sqlite3.connect(
+        db = sqlite3.connect(
                 current_app.config['DATABASE'],
                 detect_types=sqlite3.PARSE_DECLTYPES,
                 isolation_level=None,
-                timeout=20
-            )
-            g.db.row_factory = sqlite3.Row
-
-        return g.db
+                timeout=20)
+        db.row_factory = sqlite3.Row
+        return db
 
     @staticmethod
     def update(query, args):
         db = DBController.get_connection()
         db.execute(query, args)
         db.commit()
+        db.close()
 
     @staticmethod
     def query(query, args, is_one):
         db = DBController.get_connection()
         result = db.execute(query, args).fetchone() if is_one else db.execute(query, args).fetchall()
+        db.close()
         return result
 
 
