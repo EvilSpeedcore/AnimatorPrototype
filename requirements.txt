@@ -1,6 +1,5 @@
 aiohttp==3.4.4
 aioodbc==0.3.2
-aiosqlite==0.8.0
 altgraph==0.16.1
 async-timeout==3.0.1
 attrs==18.2.0
@@ -27,8 +26,6 @@ peewee==3.7.1
 pefile==2018.8.8
 Pygments==2.2.0
 PyInstaller==3.4
-pyodbc==4.0.25
-pypyodbc==1.3.5.2
 python-dateutil==2.7.3
 python-dotenv==0.9.1
 pytz==2018.5

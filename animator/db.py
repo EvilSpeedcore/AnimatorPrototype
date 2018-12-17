@@ -1,28 +1,40 @@
-from flask import g
-import pypyodbc as pyodbc
+import sqlite3
 
-CONNECTION_STRING = 'Driver={ODBC Driver 13 for SQL Server};Server=tcp:animator.database.windows.net,1433;Database=anime;Uid=Bamboocha@animator;Pwd=Qjcvsylsh1;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+import click
+from flask import current_app, g
+from flask.cli import with_appcontext
 
 
 def init_app(app):
     app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
 
 
 class DBController:
 
-    connection = pyodbc.connect(CONNECTION_STRING)
-    cursor = connection.cursor()
+    @staticmethod
+    def get_connection():
+        if 'db' not in g:
+            g.db = sqlite3.connect(
+                current_app.config['DATABASE'],
+                detect_types=sqlite3.PARSE_DECLTYPES
+            )
+            g.db.row_factory = sqlite3.Row
+
+        return g.db
 
     @staticmethod
-    def update(query, args=()):
-
-        DBController.cursor.execute(query, args)
-        DBController.connection.commit()
+    def update(query, args, is_one=False):
+        cursor = DBController.get_connection()
+        result = cursor.execute(query, args)
+        res = result.fetchone() if is_one else result.fetchall()
+        cursor.close()
 
     @staticmethod
-    def query(query, args=(), is_one=False):
-        DBController.cursor.execute(query, args)
-        return DBController.cursor.fetchone() if is_one else DBController.cursor.fetchall()
+    def query(query, args):
+        cursor = DBController.get_connection()
+        cursor.execute(query, args)
+        cursor.close()
 
 
 def close_db(e=None):
@@ -32,3 +44,16 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
+
+def init_db():
+    db = DBController.get_connection()
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+
+
+@click.command('initdb')
+@with_appcontext
+def init_db_command():
+    """Clear the existing data and create new tables."""
+    init_db()
+    click.echo('Initialized the database.')
