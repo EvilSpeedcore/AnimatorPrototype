@@ -1,5 +1,5 @@
 import asyncio
-from . import db
+from animator import db
 from animator import create_app
 
 loop = asyncio.get_event_loop()
