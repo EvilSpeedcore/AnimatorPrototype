@@ -1,9 +1,8 @@
-import asyncio
 import json
 import io
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for
 )
 import jikanpy.exceptions
 import pandas as pd
@@ -14,7 +13,6 @@ from animator.auth import login_required
 
 
 bp = Blueprint('anilist', __name__)
-loop = asyncio.get_event_loop()
 
 
 @bp.route('/update', methods=('GET', 'POST'))
@@ -39,7 +37,6 @@ def create():
                 set_constructor = parser.DataSetConstructor(user.anime_list)
                 data = json.dumps(set_constructor.create_data_set())
                 DBController.update(
-                    loop,
                     """
                     INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
                     VALUES (?, ?, ?)
@@ -62,7 +59,6 @@ def upload_file():
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
             DBController.update(
-                loop,
                 """
                 INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
                 VALUES (?, ?, ?)       
@@ -83,7 +79,6 @@ def open_new_entry_from():
 def add_title():
     if request.method == 'POST':
         anime_list = DBController.query(
-            loop,
             """
             SELECT p.list 
             FROM profile p 
@@ -96,7 +91,6 @@ def add_title():
             anime_list[key].append(value)
 
         DBController.update(
-            loop,
             """
             INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
             VALUES (?, ?, ?)       

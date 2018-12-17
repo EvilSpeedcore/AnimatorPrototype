@@ -1,11 +1,7 @@
-import asyncio
 import os
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
-
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
 
 from . import auth, anilist, db, prediction, recommendations
 
@@ -16,7 +12,6 @@ def create_app(test_config=None):
     bootstrap = Bootstrap(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'anime.sqlite'),
     )
 
     if test_config is None:

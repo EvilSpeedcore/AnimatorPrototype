@@ -1,4 +1,3 @@
-import asyncio
 import functools
 
 from flask import (
@@ -10,7 +9,6 @@ from animator.db import DBController
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-loop = asyncio.get_event_loop()
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -24,7 +22,6 @@ def register():
         elif not password:
             error = 'Password is required.'
         elif DBController.query(
-                loop,
                 """
                 SELECT id FROM user WHERE username = ?
                 """,
@@ -32,7 +29,6 @@ def register():
             error = 'User {} is already registered.'.format(username)
         if error is None:
             DBController.update(
-                loop,
                 """
                 INSERT INTO user (username, password) VALUES (?, ?)
                 """,
@@ -49,7 +45,6 @@ def login():
         password = request.form['password']
         error = None
         user = DBController.query(
-            loop,
             """
             SELECT * FROM user WHERE username = ?
             """,
@@ -74,7 +69,6 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = DBController.query(
-            loop,
             """
             SELECT * FROM user WHERE id = ?
             """,

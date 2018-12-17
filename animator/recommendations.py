@@ -1,7 +1,5 @@
-import asyncio
-
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, render_template, request, session
 )
 
 from animator.auth import login_required
@@ -9,12 +7,10 @@ from animator.db import DBController
 
 
 bp = Blueprint('recommendations', __name__)
-loop = asyncio.get_event_loop()
 
 
 def get_user_recommendations():
     recommendations = DBController.query(
-        loop,
         """
         SELECT r.title, r.anime_type, r.episodes, r.studio, r.src, r.genre, r.score, r.synopsis, r.image_url, r.url
         FROM recommendations r
@@ -35,7 +31,7 @@ def show_recommendations():
 @bp.route('/delete', methods=('GET', 'POST'))
 @login_required
 def delete_recommendation():
-    DBController.update(loop,
+    DBController.update(
                         """
                         DELETE FROM recommendations
                         WHERE title = ?

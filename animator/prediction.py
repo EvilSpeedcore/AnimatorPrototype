@@ -1,7 +1,6 @@
 #  TODO: Think about using OrderedDict in project just in case.
 #  TODO: Change order of anime list columns on index page.
 #  TODO: Update (clean up) requirements.txt
-import asyncio
 import json
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -18,7 +17,6 @@ from . import learning, parser
 
 
 bp = Blueprint('prediction', __name__)
-loop = asyncio.get_event_loop()
 
 
 @bp.route('/', methods=('GET', 'POST'))
@@ -27,7 +25,6 @@ def index():
     if user_id is None:
         return redirect(url_for('auth.login'))
     data_set = DBController.query(
-        loop,
         """
         SELECT p.list 
         FROM profile p 
@@ -55,7 +52,6 @@ def predict():
         else:
             #  TODO: Use session.get(user_id) instead of g.user['id']?. See recommendations.py
             anime_list = DBController.query(
-                loop,
                 """
                 SELECT p.list 
                 FROM profile p 
@@ -78,7 +74,6 @@ def predict():
                 if prediction:
                     #  TODO: Store json object in recommendations table instead of many columns?
                     DBController.update(
-                        loop,
                         query,
                         (g.user['id'],
                          anime_page_data.title,
