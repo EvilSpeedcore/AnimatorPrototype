@@ -1,5 +1,4 @@
 import sqlite3
-import pyodbc
 
 import click
 from flask import current_app, g
