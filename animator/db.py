@@ -3,7 +3,9 @@ import sqlite3
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
-import aiosqlite
+import aioodbc
+
+CONNECTION_STRING = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:animator.database.windows.net,1433;Database=anime;Uid=Bamboocha@animator;Pwd=Qjcvsylsh1;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
 
 
 def init_app(app):
@@ -14,32 +16,29 @@ def init_app(app):
 class DBController:
 
     @staticmethod
-    async def _update_db(query, args):
-        async with aiosqlite.connect(current_app.config['DATABASE'],
-                                     detect_types=sqlite3.PARSE_DECLTYPES) as db:
-            db.row_factory = aiosqlite.Row
-            cursor = await db.execute(query, args)
-            await db.commit()
-            db.close()
+    async def _update_db(query, args, loop):
+        async with aioodbc.create_pool(dsn=CONNECTION_STRING, loop=loop) as pool:
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(query, args)
+                    await conn.commit()
 
     @staticmethod
-    async def _query_db(query, args, is_one):
-        async with aiosqlite.connect(current_app.config['DATABASE'],
-                                     detect_types=sqlite3.PARSE_DECLTYPES) as db:
-            db.row_factory = sqlite3.Row
-            cursor = await db.execute(query, args)
-            result = await cursor.fetchone() if is_one else await cursor.fetchall()
-            cursor.close()
-            db.close()
-            return result
+    async def _query_db(query, args, is_one, loop):
+        async with aioodbc.create_pool(dsn=CONNECTION_STRING, loop=loop) as pool:
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(query, args)
+                    result = await cur.fetchone() if is_one else await cur.fetchall()
+                    return result
 
     @staticmethod
     def update(loop, query, args=()):
-        loop.run_until_complete(DBController._update_db(query, args))
+        loop.run_until_complete(DBController._update_db(query, args, loop))
 
     @staticmethod
     def query(loop, query, args=(), is_one=False):
-        return loop.run_until_complete(DBController._query_db(query, args, is_one))
+        return loop.run_until_complete(DBController._query_db(query, args, is_one, loop))
 
 
 def close_db(e=None):
