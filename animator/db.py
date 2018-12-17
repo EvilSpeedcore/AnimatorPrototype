@@ -20,6 +20,7 @@ class DBController:
             db.row_factory = sqlite3.Row
             await db.execute(query, args)
             await db.commit()
+            db.close()
 
     @staticmethod
     async def _query_db(query, args, is_one):
@@ -28,6 +29,8 @@ class DBController:
             db.row_factory = sqlite3.Row
             cursor = await db.execute(query, args)
             result = await cursor.fetchone() if is_one else await cursor.fetchall()
+            cursor.close()
+            db.close()
             return result
 
     @staticmethod
