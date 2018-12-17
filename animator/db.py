@@ -17,8 +17,8 @@ class DBController:
     async def _update_db(query, args):
         async with aiosqlite.connect(current_app.config['DATABASE'],
                                      detect_types=sqlite3.PARSE_DECLTYPES) as db:
-            db.row_factory = sqlite3.Row
-            await db.execute(query, args)
+            db.row_factory = aiosqlite.Row
+            cursor = await db.execute(query, args)
             await db.commit()
             db.close()
 
