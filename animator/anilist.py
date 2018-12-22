@@ -8,7 +8,6 @@ import jikanpy.exceptions
 import pandas as pd
 
 from . import parser
-from animator.db import DBController
 from animator.auth import login_required
 
 

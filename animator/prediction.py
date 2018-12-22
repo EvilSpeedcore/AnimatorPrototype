@@ -12,7 +12,6 @@ from jikanpy.exceptions import APIException
 import pandas as pd
 
 from animator.auth import login_required
-from animator.db import DBController
 from . import learning, parser
 
 

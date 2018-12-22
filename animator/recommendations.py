@@ -3,7 +3,6 @@ from flask import (
 )
 
 from animator.auth import login_required
-from animator.db import DBController
 
 
 bp = Blueprint('recommendations', __name__)
