@@ -9,7 +9,8 @@ import pandas as pd
 
 from . import parser
 from animator.auth import login_required
-
+from animator.models import Profile
+from animator import db
 
 bp = Blueprint('anilist', __name__)
 
@@ -29,19 +30,21 @@ def create():
             flash('MyAnimeList username is required.')
         else:
             try:
+                print(mal_username)
                 user = parser.MALUser(mal_username)
             except jikanpy.exceptions.APIException:
                 flash('Invalid username.')
             else:
                 set_constructor = parser.DataSetConstructor(user.anime_list)
                 data = json.dumps(set_constructor.create_data_set())
-                DBController.update(
-                    """
-                    INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
-                    VALUES (?, ?, ?)
-                    """,
-                    (mal_username, g.user['id'], data)
-                )
+                profile = Profile.query.filter_by(profile_id=g.user.id).first()
+                if profile:
+                    profile.list = data
+                    db.session.commit()
+                else:
+                    profile = Profile(mal_username=mal_username, profile_id=g.user.id, list=data)
+                    db.session.add(profile)
+                    db.session.commit()
                 return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
@@ -57,13 +60,14 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            DBController.update(
-                """
-                INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
-                VALUES (?, ?, ?)       
-                """,
-                ('None', g.user['id'], data)
-            )
+            profile = Profile.query.filter_by(profile_id=g.user.id)
+            if profile:
+                profile.list = data
+            else:
+                pass
+                profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
+                db.session.add(profile)
+                db.session.commit()
             return redirect(url_for('prediction.index'))
 
 
@@ -77,23 +81,12 @@ def open_new_entry_from():
 @login_required
 def add_title():
     if request.method == 'POST':
-        anime_list = DBController.query(
-            """
-            SELECT p.list 
-            FROM profile p 
-            WHERE p.profile_id = ?
-            """,
-            (g.user['id'], ), is_one=True)
-        anime_list = json.loads(anime_list['list'])
+        profile = Profile.query.filter_by(profile_id=g.user.id).first()
+        anime_list = json.loads(profile.list)
 
         for key, value in request.form.items():
             anime_list[key].append(value)
 
-        DBController.update(
-            """
-            INSERT OR REPLACE INTO profile(mal_username, profile_id, list)
-            VALUES (?, ?, ?)       
-            """,
-            ('None', g.user['id'], json.dumps(anime_list))
-        )
+        profile.list = json.dumps(anime_list)
+        db.session.commit()
     return redirect(url_for('prediction.index'))

@@ -1,6 +1,3 @@
-#  TODO: Think about using OrderedDict in project just in case.
-#  TODO: Change order of anime list columns on index page.
-#  TODO: Update (clean up) requirements.txt
 import json
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -12,6 +9,8 @@ from jikanpy.exceptions import APIException
 import pandas as pd
 
 from animator.auth import login_required
+from animator.models import Recommendations, Siteuser, Profile
+from animator import db
 from . import learning, parser
 
 
@@ -23,14 +22,9 @@ def index():
     user_id = session.get('user_id')
     if user_id is None:
         return redirect(url_for('auth.login'))
-    data_set = DBController.query(
-        """
-        SELECT p.list 
-        FROM profile p 
-        WHERE p.profile_id = ?
-        """,
-        (user_id, ), is_one=True)
-    data = pd.DataFrame(json.loads(data_set['list'])) if data_set else pd.DataFrame()
+    data_set = Profile.query.filter_by(profile_id=user_id).first()
+    data = pd.DataFrame(json.loads(data_set.list)) if data_set else pd.DataFrame()
+    print(data)
     return render_template('prediction/index.html', data_set=data)
 
 
@@ -49,43 +43,30 @@ def predict():
         except (IndexError, APIException):
             flash(message)
         else:
-            #  TODO: Use session.get(user_id) instead of g.user['id']?. See recommendations.py
-            anime_list = DBController.query(
-                """
-                SELECT p.list 
-                FROM profile p 
-                WHERE p.profile_id = ?
-                """,
-                (g.user['id'], ), is_one=True)
-            anime_list = json.loads(anime_list[0])
+            profile = Profile.query.filter_by(profile_id=g.user.id).first()
+            anime_list = json.loads(profile.list)
             model = learning.ModelConstructor(anime_list).model
             if not model:
                 flash('Number of completed titles is too damn low!')
             else:
                 predictor = learning.Predictor(model)
                 prediction, train_accuracy, test_accuracy = predictor.make_prediction(anime_page_data)
-                query = (
-                    """
-                    INSERT OR IGNORE INTO recommendations(profile_id, title, anime_type, episodes, studio, src, genre,
-                                                          score, synopsis, image_url, url)
-                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """)
                 if prediction:
-                    #  TODO: Store json object in recommendations table instead of many columns?
-                    DBController.update(
-                        query,
-                        (g.user['id'],
-                         anime_page_data.title,
-                         anime_page_data.type,
-                         anime_page_data.episodes,
-                         anime_page_data.studio,
-                         anime_page_data.source,
-                         anime_page_data.genre,
-                         anime_page_data.score,
-                         anime_page_data.synopsis,
-                         anime_page_data.image_url,
-                         anime_page_data.url
-                         ))
+                    recommendation = Recommendations.query.filter_by(title=anime_page_data.title).first()
+                    if not recommendation:
+                        recommendation = Recommendations(title=anime_page_data.title,
+                                                         anime_type=anime_page_data.type,
+                                                         episodes=anime_page_data.episodes,
+                                                         studio=anime_page_data.studio,
+                                                         src=anime_page_data.source,
+                                                         genre=anime_page_data.genre,
+                                                         score=anime_page_data.score,
+                                                         synopsis=anime_page_data.synopsis,
+                                                         image_url=anime_page_data.image_url,
+                                                         url=anime_page_data.url,
+                                                         profile_id=g.user.id)
+                        db.session.add(recommendation)
+                        db.session.commit()
                 return render_template('prediction/prediction.html',
                                        anime_page_data=anime_page_data,
                                        prediction=prediction,

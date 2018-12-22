@@ -5,6 +5,8 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from animator.models import Siteuser
+from animator import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -19,18 +21,12 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif DBController.query(
-                """
-                SELECT id FROM user WHERE username = ?
-                """,
-                (username, ), is_one=True) is not None:
+        elif Siteuser.query.filter_by(username=username).first():
             error = 'User {} is already registered.'.format(username)
         if error is None:
-            DBController.update(
-                """
-                INSERT INTO user (username, password) VALUES (?, ?)
-                """,
-                (username, generate_password_hash(password)))
+            user = Siteuser(username=username, password=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
             return redirect(url_for('auth.login'))
         flash(error)
     return render_template('auth/register.html')
@@ -42,18 +38,14 @@ def login():
         username = request.form['username']
         password = request.form['password']
         error = None
-        user = DBController.query(
-            """
-            SELECT * FROM user WHERE username = ?
-            """,
-            (username, ), is_one=True)
+        user = Siteuser.query.filter_by(username=username).first()
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
             return redirect(url_for('index'))
         flash(error)
     return render_template('auth/login.html')
@@ -66,11 +58,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = DBController.query(
-            """
-            SELECT * FROM user WHERE id = ?
-            """,
-            (user_id, ), is_one=True)
+        g.user = Siteuser.query.filter_by(id=user_id).first()
 
 
 @bp.route('/logout')

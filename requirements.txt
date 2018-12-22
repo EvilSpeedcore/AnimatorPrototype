@@ -1,4 +1,5 @@
 aiohttp==3.4.4
+alembic==1.0.5
 altgraph==0.16.1
 async-timeout==3.0.1
 attrs==18.2.0
@@ -9,6 +10,8 @@ Click==7.0
 dominate==2.3.4
 Flask==1.0.2
 Flask-Bootstrap==3.3.7.1
+Flask-Migrate==2.3.1
+Flask-SQLAlchemy==2.3.2
 future==0.17.1
 idna==2.7
 idna-ssl==1.1.0
@@ -17,16 +20,19 @@ git+git://github.com/AWConant/jikanpy.git
 Jinja2==2.10
 lxml==4.2.5
 macholib==1.11
+Mako==1.0.7
 MarkupSafe==1.0
 multidict==4.4.2
 numpy==1.15.4
 pandas==0.23.4
 peewee==3.7.1
 pefile==2018.8.8
+psycopg2-binary==2.7.6.1
 Pygments==2.2.0
 PyInstaller==3.4
 python-dateutil==2.7.3
 python-dotenv==0.9.1
+python-editor==1.0.3
 pytz==2018.5
 pywin32-ctypes==0.2.0
 requests==2.20.1
@@ -34,6 +40,7 @@ scikit-learn==0.20.0
 scipy==1.1.0
 six==1.11.0
 sklearn==0.0
+SQLAlchemy==1.2.15
 sqlite-web==0.3.5
 urllib3==1.23
 visitor==0.1.3
