@@ -9,7 +9,7 @@ import pandas as pd
 
 from animator import db, parser
 from animator.controllers.auth import login_required
-from animator.models import Profile
+from animator.models.models import Profile
 
 
 bp = Blueprint('anilist', __name__)

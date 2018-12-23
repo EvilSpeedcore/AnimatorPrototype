@@ -8,9 +8,9 @@ from flask import (
 from jikanpy.exceptions import APIException
 import pandas as pd
 
-from animator.controllers.auth import login_required
-from animator.models import Profile, Recommendations
 from animator import db, learning, parser
+from animator.controllers.auth import login_required
+from animator.models.models import Profile, Recommendations
 
 
 bp = Blueprint('prediction', __name__)
@@ -23,7 +23,6 @@ def index():
         return redirect(url_for('auth.login'))
     data_set = Profile.query.filter_by(profile_id=user_id).first()
     data = pd.DataFrame(json.loads(data_set.list)) if data_set else pd.DataFrame()
-    print(data)
     return render_template('prediction/index.html', data_set=data)
 
 

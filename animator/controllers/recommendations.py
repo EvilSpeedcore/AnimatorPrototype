@@ -5,7 +5,7 @@ from sqlalchemy import inspect
 
 from animator import db
 from animator.controllers.auth import login_required
-from animator.models import Recommendations
+from animator.models.models import Recommendations
 
 
 bp = Blueprint('recommendations', __name__)
@@ -34,7 +34,6 @@ def show_recommendations():
 @login_required
 def delete_recommendation():
     recommendation = Recommendations.query.filter_by(title=request.args.get('row_id')).first()
-    print(recommendation)
     db.session.delete(recommendation)
     db.session.commit()
     recommendations = get_user_recommendations()
