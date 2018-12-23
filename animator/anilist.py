@@ -60,9 +60,10 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             data = pd.read_csv(stream).to_json()
-            profile = Profile.query.filter_by(profile_id=g.user.id)
+            profile = Profile.query.filter_by(profile_id=g.user.id).first()
             if profile:
                 profile.list = data
+                db.session.commit()
             else:
                 pass
                 profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
