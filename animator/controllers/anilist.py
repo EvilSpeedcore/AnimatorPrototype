@@ -6,6 +6,7 @@ from flask import (
 )
 import jikanpy.exceptions
 import pandas as pd
+from pandas import errors
 
 from animator import db, parser
 from animator.controllers.auth import login_required
@@ -63,17 +64,21 @@ def upload_file():
         file = request.files.get('file')
         if file:
             stream = io.BytesIO(file.read())
-            data = pd.read_csv(stream).to_json()
-            profile = Profile.query.filter_by(profile_id=g.user.id).first()
-            if profile:
-                profile.list = data
-                db.session.commit()
+            try:
+                data = pd.read_csv(stream).to_json()
+            except errors.ParserError:
+                flash('Invalid file format.')
             else:
-                pass
-                profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
-                db.session.add(profile)
-                db.session.commit()
-            return redirect(url_for('prediction.index'))
+                profile = Profile.query.filter_by(profile_id=g.user.id).first()
+                if profile:
+                    profile.list = data
+                    db.session.commit()
+                else:
+                    profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
+                    db.session.add(profile)
+                    db.session.commit()
+                return redirect(url_for('prediction.index'))
+        return redirect(url_for('anilist.create'))
 
 
 @bp.route('/new_title', methods=['GET', 'POST'])
