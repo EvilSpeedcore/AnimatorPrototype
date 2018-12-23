@@ -8,7 +8,7 @@ import jikanpy.exceptions
 import pandas as pd
 
 from animator import db, parser
-from animator.auth import login_required
+from animator.controllers.auth import login_required
 from animator.models import Profile
 
 

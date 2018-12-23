@@ -3,9 +3,9 @@ from flask import (
 )
 from sqlalchemy import inspect
 
-from animator.auth import login_required
-from animator.models import Siteuser, Profile, Recommendations
 from animator import db
+from animator.controllers.auth import login_required
+from animator.models import Recommendations
 
 
 bp = Blueprint('recommendations', __name__)

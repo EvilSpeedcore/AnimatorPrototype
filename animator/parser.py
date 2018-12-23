@@ -1,4 +1,3 @@
-#  TODO: Put classes into different files
 import collections
 import concurrent.futures
 import pathlib
