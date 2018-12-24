@@ -48,26 +48,30 @@ def predict():
                 flash('Number of completed titles is too damn low!')
             else:
                 predictor = learning.Predictor(model)
-                prediction, train_accuracy, test_accuracy = predictor.make_prediction(anime_page_data)
-                if prediction:
-                    recommendation = Recommendations.query.filter_by(title=anime_page_data.title).first()
-                    if not recommendation:
-                        recommendation = Recommendations(title=anime_page_data.title,
-                                                         anime_type=anime_page_data.type,
-                                                         episodes=anime_page_data.episodes,
-                                                         studio=anime_page_data.studio,
-                                                         src=anime_page_data.source,
-                                                         genre=anime_page_data.genre,
-                                                         score=anime_page_data.score,
-                                                         synopsis=anime_page_data.synopsis,
-                                                         image_url=anime_page_data.image_url,
-                                                         url=anime_page_data.url,
-                                                         profile_id=g.user.id)
-                        db.session.add(recommendation)
-                        db.session.commit()
-                return render_template('prediction/prediction.html',
-                                       anime_page_data=anime_page_data,
-                                       prediction=prediction,
-                                       train_accuracy=train_accuracy,
-                                       test_accuracy=test_accuracy)
+                try:
+                    prediction, train_accuracy, test_accuracy = predictor.make_prediction(anime_page_data)
+                except ValueError:
+                    flash('Not enough data to make prediction.')
+                else:
+                    if prediction:
+                        recommendation = Recommendations.query.filter_by(title=anime_page_data.title).first()
+                        if not recommendation:
+                            recommendation = Recommendations(title=anime_page_data.title,
+                                                             anime_type=anime_page_data.type,
+                                                             episodes=anime_page_data.episodes,
+                                                             studio=anime_page_data.studio,
+                                                             src=anime_page_data.source,
+                                                             genre=anime_page_data.genre,
+                                                             score=anime_page_data.score,
+                                                             synopsis=anime_page_data.synopsis,
+                                                             image_url=anime_page_data.image_url,
+                                                             url=anime_page_data.url,
+                                                             profile_id=g.user.id)
+                            db.session.add(recommendation)
+                            db.session.commit()
+                    return render_template('prediction/prediction.html',
+                                           anime_page_data=anime_page_data,
+                                           prediction=prediction,
+                                           train_accuracy=train_accuracy,
+                                           test_accuracy=test_accuracy)
     return render_template('prediction/prediction.html')
