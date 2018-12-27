@@ -64,6 +64,8 @@
         </div>
         <button class="btn btn-info" type="submit">Submit</button>
     </form>
-
+    {% for message in get_flashed_messages() %}
+    <div class="flash" align="center"><br>{{ message }}</div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 import json
+import collections
 import io
 
 from flask import (
@@ -65,7 +66,11 @@ def upload_file():
         if file:
             stream = io.BytesIO(file.read())
             try:
-                data = pd.read_csv(stream).to_json()
+                data = pd.read_csv(stream)
+                d = collections.defaultdict(list)
+                for name, values in data.items():
+                    d[name] = list(values)
+                data = json.dumps(d)
             except errors.ParserError:
                 flash('Invalid file format.')
             else:
@@ -93,10 +98,14 @@ def add_title():
     if request.method == 'POST':
         profile = Profile.query.filter_by(profile_id=g.user.id).first()
         anime_list = json.loads(profile.list)
-
-        for key, value in request.form.items():
-            anime_list[key].append(value)
-
-        profile.list = json.dumps(anime_list)
-        db.session.commit()
-    return redirect(url_for('prediction.index'))
+        new_title = dict(request.form.items())
+        filled_fields = all(bool(item.strip()) for item in new_title.values())
+        if not filled_fields:
+            flash('Empty fields are not allowed.')
+            return render_template('list_creation/add_title.html')
+        else:
+            for key, value in request.form.items():
+                anime_list[key].append(value)
+            profile.list = json.dumps(anime_list)
+            db.session.commit()
+            return redirect(url_for('prediction.index'))
