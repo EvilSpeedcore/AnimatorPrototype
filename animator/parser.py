@@ -147,3 +147,35 @@ class DataSetConstructor:
                       'Score': anime_page.score,
                       'Personal score': record.personal_score}
             return record
+
+
+def rand(filename, is_header, page, start):
+    import csv
+    import time
+    from jikanpy import Jikan, exceptions
+    jikan = Jikan()
+
+    def write_row(info, fieldnames, writer):
+        f = (info.title, info.type, info.episodes, info.studio, info.source,
+             info.genre, info.score, info.synopsis, info.url, info.image_url)
+        row = {x: y for x, y in zip(fieldnames, f)}
+        writer.writerow(row)
+        #  time.sleep(15)
+
+    with open(filename, 'a', newline='', encoding='UTF-8') as csvfile:
+        fieldnames = ['title', 'type', 'episodes', 'studio', 'src', 'genre', 'score', 'synopsis', 'url', 'image_url']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        if is_header:
+            writer.writeheader()
+
+        top_anime = jikan.top(type='anime')
+        for index, each in enumerate(top_anime['top'][start:]):
+            print('Processing anime number [{}].'.format(index+start))
+            try:
+                info = AnimePageInfo(each['mal_id'])
+            except exceptions.APIException:
+                print('FAIL.')
+                exit(1)
+            else:
+                write_row(info, fieldnames, writer)

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Create your own list.{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='recommendation-table.css') }}">
+<main role="main" class="container">
+</main>
+<div class="container">
+    <h2 align="center">Titles</h2>
+    <hr>
+    <table class="table table-condensed" style="border-collapse:collapse;">
+        <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Studio</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Score</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for title in top %}
+            {% set outer_loop = loop %}
+            <tr>
+            {% for key in title.keys() %}
+                {% if key == 'title' %}
+                <td>{{ title[key] }}
+                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target=".{{ outer_loop.index }}">Info</button>
+                    <div class="modal fade {{ outer_loop.index }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-sm-4"> <img src="{{ title['image_url'] }}"></div>
+                                        <div class="col-sm-8"> {{ title['synopsis'] }}
+                                            <p style="margin: 5px 0 10px" align="center"><a href="{{ title['url'] }}"> Visit page </a></p>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                {% elif key != 'synopsis' and key != 'image_url' and key != 'url' %}
+                <td>{{ title[key] }}</td>
+                {% endif %}
+                {% if key == 'score' %}
+                <td><button class="btn btn-warning btn-xs" type="button">X</button></td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+
+    <form class="form-inline" method="POST" action="{{ url_for('anilist.create_from_scratch') }}">
+        <div class="form-group mx-sm-1">
+            <label for="page_number" class="sr-only">Page</label>
+            <input name="page_number" id="page_number" value="{{ request.form['page_number'] }}" class="form-control" placeholder="Page">
+        </div>
+        <label class="btn btn-default"> Open <input type="submit" style="display: none;"/></label>
+    </form>
+            </div>
+            <div class="col-lg-4" align="center">
+                On {{ pages['current'] }} page out of {{ pages['overall'] }}.
+            </div>
+        <div class="col-lg-4" align="right">
+            <button type="button" class="btn btn-default" onclick="location.href='{{ url_for('anilist.flip_previous', page=pages['current'])}}'">Previous</button>
+            <button type="button" class="btn btn-default" onclick="location.href='{{ url_for('anilist.flip_next', page=pages['current'])}}'">Next</button>
+            </div>
+        </div>
+    <hr>
+</div>
+
+{% endblock %}

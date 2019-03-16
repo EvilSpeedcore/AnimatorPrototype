@@ -4,7 +4,7 @@ from flask import (
 from sqlalchemy import inspect
 
 from animator.auth import login_required
-from animator.models import Siteuser, Profile, Recommendations
+from animator.models import Recommendations, TopAnime
 from animator import db
 
 
@@ -22,6 +22,28 @@ def get_user_recommendations():
     return recommendations
 
 
+def costil():
+    import csv
+    hehe = []
+    with open('top1.csv', newline='', encoding='UTF-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            a = TopAnime(title=row['title'],
+                         anime_type=row['type'],
+                         episodes=row['episodes'],
+                         studio=row['studio'],
+                         src=row['src'],
+                         genre=row['genre'],
+                         score=row['score'],
+                         synopsis=row['synopsis'],
+                         url=row['url'],
+                         image_url=row['image_url'])
+            hehe.append(a)
+    db.session.add_all(hehe)
+    db.session.commit()
+    print(len(hehe))
+
+
 @bp.route('/recommendations', methods=('GET', 'POST'))
 @login_required
 def show_recommendations():
@@ -34,7 +56,6 @@ def show_recommendations():
 @login_required
 def delete_recommendation():
     recommendation = Recommendations.query.filter_by(title=request.args.get('row_id')).first()
-    print(recommendation)
     db.session.delete(recommendation)
     db.session.commit()
     recommendations = get_user_recommendations()
