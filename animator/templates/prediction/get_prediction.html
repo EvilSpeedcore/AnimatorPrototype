@@ -68,8 +68,7 @@
         <tbody>
         {% for recommendation in recommendations %}
         <tr>
-
-            <td> <a href=" {{ request.form['anime_url'] }}" title="Visit MyAnimeList.net">{{ recommendation.title }}</a></td>
+            <td> <a href=" {{ recommendation.url }}" title="Visit MyAnimeList.net">{{ recommendation.title }}</a></td>
             <td>{{ recommendation.type }}</td>
             <td>{{ recommendation.episodes }}</td>
             <td>{{ recommendation.studio }}</td>
