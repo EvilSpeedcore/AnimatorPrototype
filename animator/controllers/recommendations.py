@@ -3,9 +3,10 @@ from flask import (
 )
 from sqlalchemy import inspect
 
+
 from animator import db
 from animator.controllers.auth import login_required
-from animator.models.models import Recommendations
+from animator.models.models import Recommendations, TopAnime
 
 
 bp = Blueprint('recommendations', __name__)
@@ -20,6 +21,28 @@ def get_user_recommendations():
     recommendations = Recommendations.query.filter_by(profile_id=session.get('user_id')).all()
     recommendations = [object_as_dict(r) for r in recommendations]
     return recommendations
+
+
+def costil():
+    import csv
+    hehe = []
+    with open('top1.csv', newline='', encoding='UTF-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            a = TopAnime(title=row['title'],
+                         anime_type=row['type'],
+                         episodes=row['episodes'],
+                         studio=row['studio'],
+                         src=row['src'],
+                         genre=row['genre'],
+                         score=row['score'],
+                         synopsis=row['synopsis'],
+                         url=row['url'],
+                         image_url=row['image_url'])
+            hehe.append(a)
+    db.session.add_all(hehe)
+    db.session.commit()
+    print(len(hehe))
 
 
 @bp.route('/recommendations', methods=('GET', 'POST'))

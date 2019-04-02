@@ -36,3 +36,19 @@ class Recommendations(db.Model):
     url = db.Column(db.String())
     image_url = db.Column(db.String())
     profile_id = db.Column(db.Integer, db.ForeignKey('siteuser.id'))
+
+
+class TopAnime(db.Model):
+    __tablename__ = 'topanime'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String())
+    anime_type = db.Column(db.String())
+    episodes = db.Column(db.String())
+    studio = db.Column(db.String())
+    src = db.Column(db.String())
+    genre = db.Column(db.String())
+    score = db.Column(db.String())
+    synopsis = db.Column(db.String())
+    url = db.Column(db.String())
+    image_url = db.Column(db.String())

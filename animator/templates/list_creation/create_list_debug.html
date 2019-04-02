@@ -7,10 +7,11 @@
     <div class="container marketing">
         <div class="row">
             <div class="col-lg-6">
-                <h2 align="center">From database</h2>
-                <p>Create or update your anime list from suggested titles. If you creating list from scratch, then select at least 300 titles you have watched for algorithm to be able to make predictions.</p>
+                <h2 align="center">From file</h2>
+                <p>Upload anime list from CSV file. Form specially structured text file based on your anime list. Information about file contents can be found on Help page.</p>
                 <form action = "{{ url_for('anilist.upload_file') }}" method="POST" enctype="multipart/form-data">
-                    <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.create_from_scratch') }}'" type="button">Create list</button>
+                    <label class="btn btn-default btn-file"> Browse <input type="file" name="file" style="display: none;"></label>
+                    <label class="btn btn-default"> Confirm <input type="submit" style="display: none;"/></label>
                 </form>
             </div>
             <div class="col-lg-6">

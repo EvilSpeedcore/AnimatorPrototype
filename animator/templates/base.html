@@ -12,7 +12,9 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 {% if g.user %}
+                <li><a href="{{ url_for('prediction.get_prediction') }}">Get prediction</a></li>
                 <li><a href="{{ url_for('recommendations.show_recommendations') }}">Recommendations</a></li>
+                <li><a href="{{ url_for('anilist.create_debug') }}">Debug</a></li>
                 {% endif %}
                 <li><a href="">Help</a></li>
             </ul>
