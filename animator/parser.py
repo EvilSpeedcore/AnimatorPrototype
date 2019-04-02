@@ -1,4 +1,3 @@
-#  TODO: Put classes into different files
 import collections
 import concurrent.futures
 import pathlib
@@ -120,7 +119,6 @@ class DataSetConstructor:
         with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
             for record in executor.map(DataSetConstructor.create_sample, self.anime_list):
                 counter += 1
-                print(counter)
                 for key, value in record.items():
                     data_set[key].append(value)
                 if counter % 100 == 0:

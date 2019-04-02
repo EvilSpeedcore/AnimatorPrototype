@@ -3,9 +3,10 @@ from flask import (
 )
 from sqlalchemy import inspect
 
-from animator.auth import login_required
-from animator.models import Recommendations, TopAnime
+
 from animator import db
+from animator.controllers.auth import login_required
+from animator.models.models import Recommendations, TopAnime
 
 
 bp = Blueprint('recommendations', __name__)

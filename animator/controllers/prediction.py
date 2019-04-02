@@ -10,10 +10,9 @@ from flask import (
 from jikanpy.exceptions import APIException
 import pandas as pd
 
-from animator.auth import login_required
-from animator.models import Recommendations, Siteuser, Profile, TopAnime
-from animator import db
-from . import learning, parser
+from animator import db, learning, parser
+from animator.controllers.auth import login_required
+from animator.models.models import Recommendations, Profile, TopAnime
 
 
 bp = Blueprint('prediction', __name__)

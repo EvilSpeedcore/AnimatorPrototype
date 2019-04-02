@@ -7,11 +7,12 @@ from flask import (
 )
 import jikanpy.exceptions
 import pandas as pd
+from pandas import errors
 
-from . import parser
-from animator.auth import login_required
+from animator import db, parser
+from animator.controllers.auth import login_required
+from animator.models.models import Profile, TopAnime
 from animator.helpers import object_as_dict
-from animator.models import Profile, TopAnime
 from animator.paginators import TitlePaginator
 from animator import db
 
@@ -29,6 +30,17 @@ def get_top_anime():
         list_ = json.loads(profile.list)
         return [t for t in titles if t[0] not in list_['Title']]
     return titles
+
+
+def get_anime_list(mal_username):
+    try:
+        user = parser.MALUser(mal_username)
+    except jikanpy.exceptions.APIException:
+        flash('Invalid username.')
+    else:
+        set_constructor = parser.DataSetConstructor(user.anime_list)
+        data = json.dumps(set_constructor.create_data_set())
+        return data
 
 
 @bp.route('/update', methods=('GET', 'POST'))
@@ -72,22 +84,16 @@ def create():
         if not mal_username:
             flash('MyAnimeList username is required.')
         else:
-            try:
-                user = parser.MALUser(mal_username)
-            except jikanpy.exceptions.APIException:
-                flash('Invalid username.')
+            data = get_anime_list(mal_username)
+            profile = Profile.query.filter_by(profile_id=g.user.id).first()
+            if profile:
+                profile.list = data
+                db.session.commit()
             else:
-                set_constructor = parser.DataSetConstructor(user.anime_list)
-                data = json.dumps(set_constructor.create_data_set())
-                profile = Profile.query.filter_by(profile_id=g.user.id).first()
-                if profile:
-                    profile.list = data
-                    db.session.commit()
-                else:
-                    profile = Profile(mal_username=mal_username, profile_id=g.user.id, list=data)
-                    db.session.add(profile)
-                    db.session.commit()
-                return redirect(url_for('prediction.index'))
+                profile = Profile(mal_username=mal_username, profile_id=g.user.id, list=data)
+                db.session.add(profile)
+                db.session.commit()
+            return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
 
@@ -101,16 +107,21 @@ def upload_file():
         file = request.files.get('file')
         if file:
             stream = io.BytesIO(file.read())
-            data = pd.read_csv(stream).to_json()
-            profile = Profile.query.filter_by(profile_id=g.user.id).first()
-            if profile:
-                profile.list = data
-                db.session.commit()
+            try:
+                data = pd.read_csv(stream).to_json()
+            except errors.ParserError:
+                flash('Invalid file format.')
             else:
-                profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
-                db.session.add(profile)
-                db.session.commit()
-            return redirect(url_for('prediction.index'))
+                profile = Profile.query.filter_by(profile_id=g.user.id).first()
+                if profile:
+                    profile.list = data
+                    db.session.commit()
+                else:
+                    profile = Profile(mal_username='None', profile_id=g.user.id, list=data)
+                    db.session.add(profile)
+                    db.session.commit()
+                return redirect(url_for('prediction.index'))
+        return redirect(url_for('anilist.create'))
 
 
 @bp.route('/create_from_scratch', methods=['GET', 'POST'])

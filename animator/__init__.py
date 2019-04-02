@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
 
@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from . import auth, anilist, prediction, recommendations
+from animator.controllers import anilist, auth, prediction, recommendations
 
 app.register_blueprint(auth.bp)
 app.register_blueprint(anilist.bp)
