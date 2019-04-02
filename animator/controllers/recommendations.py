@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, session
+    Blueprint, render_template, request, session, redirect, url_for
 )
 from sqlalchemy import inspect
 
@@ -42,7 +42,6 @@ def costil():
             hehe.append(a)
     db.session.add_all(hehe)
     db.session.commit()
-    print(len(hehe))
 
 
 @bp.route('/recommendations', methods=('GET', 'POST'))
@@ -59,5 +58,4 @@ def delete_recommendation():
     recommendation = Recommendations.query.filter_by(title=request.args.get('row_id')).first()
     db.session.delete(recommendation)
     db.session.commit()
-    recommendations = get_user_recommendations()
-    return render_template('recommendations/recommendations.html', recommendations=recommendations)
+    return redirect(url_for('recommendations.show_recommendations'))
