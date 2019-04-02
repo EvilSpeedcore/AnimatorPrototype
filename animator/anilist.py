@@ -24,7 +24,12 @@ def get_top_anime():
     fields = (TopAnime.title, TopAnime.studio, TopAnime.genre, TopAnime.score, TopAnime.url, TopAnime.image_url,
               TopAnime.synopsis)
     titles = [title for title in db.session.query(*fields).all()]
+    profile = Profile.query.filter_by(profile_id=g.user.id).first()
+    if profile:
+        list_ = json.loads(profile.list)
+        return [t for t in titles if t[0] not in list_['Title']]
     return titles
+
 
 @bp.route('/update', methods=('GET', 'POST'))
 @login_required
@@ -140,6 +145,8 @@ def flip_previous():
 @bp.route('/next', methods=['GET', 'POST'])
 @login_required
 def flip_next():
+    #  Can I use to instead of requirest.args.get?
+    #  number = request.form['page']
     number = request.args.get('page')
     titles = get_top_anime()
     paginator = TitlePaginator(titles)
@@ -148,22 +155,37 @@ def flip_next():
     return render_template('list_creation/create_from_scratch.html', top=page, pages=pages)
 
 
-@bp.route('/new_title', methods=['GET', 'POST'])
+@bp.route('/add_titles', methods=['POST'])
 @login_required
-def open_new_entry_from():
-    return render_template('list_creation/add_title.html')
-
-
-@bp.route('/add_title', methods=['GET', 'POST'])
-@login_required
-def add_title():
-    if request.method == 'POST':
-        profile = Profile.query.filter_by(profile_id=g.user.id).first()
+def add_titles():
+    title = request.args.get('title')
+    score = request.form.get('score')
+    titles = get_top_anime()
+    paginator = TitlePaginator(titles)
+    page = paginator.find(1)
+    profile = Profile.query.filter_by(profile_id=g.user.id).first()
+    anime = TopAnime.query.filter_by(title=title).first()
+    anime = object_as_dict(anime)
+    if profile:
+        an = {}
+        l = (title, anime['anime_type'], int(anime['episodes']), anime['studio'], anime['src'], anime['genre'], float(anime['score']), int(score))
+        an['Title'], an['Type'], an['Episodes'], an['Studios'], an['Source'], an['Genres'], an['Score'], an['Personal score'] = l
         anime_list = json.loads(profile.list)
-
-        for key, value in request.form.items():
+        for key, value in an.items():
+            print(key, value, type(value))
             anime_list[key].append(value)
-
         profile.list = json.dumps(anime_list)
         db.session.commit()
-    return redirect(url_for('prediction.index'))
+    else:
+        list_ = {'Title': [title],
+                 'Type': [anime['anime_type']],
+                 'Episodes': [int(anime['episodes'])],
+                 'Studios': [anime['studio']],
+                 'Source': [anime['src']],
+                 'Genres': [anime['genre']],
+                 'Score': [float(anime['score'])],
+                 'Personal score': [int(score)]}
+        profile = Profile(mal_username='None', profile_id=g.user.id, list=json.dumps(list_))
+        db.session.add(profile)
+        db.session.commit()
+    return redirect(url_for('anilist.create_from_scratch'))

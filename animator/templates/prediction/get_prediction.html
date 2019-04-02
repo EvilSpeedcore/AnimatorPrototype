@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Get prediction{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='get_predictions.css') }}">
+<main role="main" class="loader-container">
+</main>
+<div class="container" align="center">
+    <h2 align="center">Search</h2>
+    <hr>
+    <form action="{{ url_for('prediction.get_prediction') }}" method="POST">
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-2">
+                <label for="episodes_input">Episodes</label>
+                <input class="form-control" id="episodes_input" name="episodes_input">
+            </div>
+            <div class="col-sm-2">
+                <label>Source</label>
+                <select class="source-selection" data-style="btn-new" name="source-selection">
+                    {% for source in sources %}
+                    <option selected>{{ source }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-1">
+                <label>Type</label>
+                <select class="type-selection" name="type-selection">
+                    {% for type in types %}
+                    <option selected>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Genre</label>
+            <select class="genre-selection" name="genre-selection">
+                {% for genre in genres %}
+                <option selected>{{ genre }}</option>
+                {% endfor %}
+            </select>
+            </div>
+            <div class="col-sm-1 smbutton">
+            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+            </div>
+    </form>
+    {% for message in get_flashed_messages() %}
+    <div class="flash"><br>{{ message }}</div>
+    {% endfor %}
+</div>
+<div class="container">
+    {% if recommendations %}
+    <h2 align="center">Recommended to you</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Type</th>
+            <th scope="col">Episodes</th>
+            <th scope="col">Studio</th>
+            <th scope="col">Source</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for recommendation in recommendations %}
+        <tr>
+
+            <td> <a href=" {{ request.form['anime_url'] }}" title="Visit MyAnimeList.net">{{ recommendation.title }}</a></td>
+            <td>{{ recommendation.type }}</td>
+            <td>{{ recommendation.episodes }}</td>
+            <td>{{ recommendation.studio }}</td>
+            <td>{{ recommendation.source }}</td>
+            <td>{{ recommendation.genre }}</td>
+            <td>{{ recommendation.score }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

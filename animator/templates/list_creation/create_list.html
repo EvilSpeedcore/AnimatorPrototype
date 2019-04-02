@@ -7,8 +7,8 @@
     <div class="container marketing">
         <div class="row">
             <div class="col-lg-6">
-                <h2 align="center">Your own</h2>
-                <p>Create your anime list from suggested titles. Select at least 300 titles you have watched for algorithm to be able to make predictions. Predictions precision directly depends on number of titles.</p>
+                <h2 align="center">From database</h2>
+                <p>Create or update your anime list from suggested titles. If you creating list from scratch, then select at least 300 titles you have watched for algorithm to be able to make predictions.</p>
                 <form action = "{{ url_for('anilist.upload_file') }}" method="POST" enctype="multipart/form-data">
                     <button class="btn btn-default" onclick="location.href='{{ url_for('anilist.create_from_scratch') }}'" type="button">Create list</button>
                 </form>

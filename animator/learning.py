@@ -57,9 +57,14 @@ class Predictor:
         initial_data = df[['Episodes', 'Score']].join(categorical_data)
         x_train, y_train = self.model.train_subset
         x_test, y_test = self.model.test_subset
+        x_train = x_train.loc[:, ~x_train.columns.duplicated()]
         data = pd.concat([x_train, initial_data], axis=0, sort=True, keys=['train', 'test']).loc['test'].fillna(0)
         #  TODO: Columns in data and x_train might not match. Throws exception cases where rare sample provided.
         model = self.model.classifier
-        prediction = model.predict(data)
-        train_accuracy, test_accuracy = model.score(x_train, y_train), model.score(x_test, y_test)
-        return prediction[0], train_accuracy, test_accuracy
+        try:
+            prediction = model.predict(data)
+        except ValueError:
+            raise ValueError
+        else:
+            train_accuracy, test_accuracy = model.score(x_train, y_train), model.score(x_test, y_test)
+            return prediction[0], train_accuracy, test_accuracy

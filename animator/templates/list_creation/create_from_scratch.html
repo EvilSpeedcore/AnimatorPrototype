@@ -16,6 +16,7 @@
             <th scope="col">Studio</th>
             <th scope="col">Genre</th>
             <th scope="col">Score</th>
+            <th class="your-score" scope="col">Your score</th>
         </tr>
         </thead>
         <tbody>
@@ -44,7 +45,14 @@
                 <td>{{ title[key] }}</td>
                 {% endif %}
                 {% if key == 'score' %}
-                <td><button class="btn btn-warning btn-xs" type="button">X</button></td>
+                <td>
+<form class="form-inline" method="POST" action="{{ url_for('anilist.add_titles', title=title['title']) }}">
+    <div class="form-group">
+        <input name="score" type="text" class="form-control">
+        <button type="submit" class="btn btn-info">Confirm</button>
+</div>
+</form>
+                </td>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -74,5 +82,4 @@
         </div>
     <hr>
 </div>
-
 {% endblock %}

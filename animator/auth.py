@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from animator.models import Siteuser
+from animator.models import Profile, Siteuser
 from animator import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
