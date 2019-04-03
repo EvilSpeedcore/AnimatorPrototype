@@ -16,6 +16,8 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        age = request.form['age']
+        country = request.form['country']
         error = None
         if not username:
             error = 'Username is required.'
@@ -24,7 +26,7 @@ def register():
         elif Siteuser.query.filter_by(username=username).first():
             error = 'User {} is already registered.'.format(username)
         if error is None:
-            user = Siteuser(username=username, password=generate_password_hash(password))
+            user = Siteuser(username=username, password=generate_password_hash(password), age=age, country=country)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('auth.login'))
