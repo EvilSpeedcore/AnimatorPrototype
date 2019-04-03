@@ -1,0 +1,9 @@
+{% extends 'administration/administration-index.html' %}
+
+{% block title %}Administration{% endblock %}
+{% block content %}
+{{ super() }}
+<div class="container" align="center">
+    <img src="data:image/png;base64, {{image }}"/>
+</div>
+{% endblock %}

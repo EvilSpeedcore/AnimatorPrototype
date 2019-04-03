@@ -21,7 +21,7 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if g.user %}
                     {% if g.user.privilege %}
-                        <li><a href="{{ url_for('administration.administration_panel') }}">Administration</a></li>
+                        <li><a href="{{ url_for('administration.administration_panel_index') }}">Administration</a></li>
                     {% endif %}
                 <li><a>{{ g.user['username'] }}</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
