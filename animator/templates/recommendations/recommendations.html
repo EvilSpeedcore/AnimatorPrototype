@@ -24,6 +24,8 @@
             <th scope="col">Source</th>
             <th scope="col">Genre</th>
             <th scope="col">Score</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -52,13 +54,48 @@
                 <td>{{ recommendation[key] }}</td>
                 {% endif %}
                 {% if key == 'score' %}
-                <td><button class="btn btn-warning btn-xs" onclick="location.href='{{ url_for('recommendations.delete_recommendation', row_id=recommendation['title'])}}'" type="button">X</button></td>
+                <td><button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#exampleModalCenter">ADD</button></td>
+                <td><button class="btn btn-warning btn-xs" onclick="location.href='{{ url_for('recommendations.delete_recommendation', row_id=recommendation['title'])}}'" title="Remove from recommendations" type="button">DEL</button></td>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" align="center" id="exampleModalLongTitle">Enter score</h4>
+                      </div>
+                      <div class="modal-body">
+                    <form class="form-inline" method="POST" action="{{ url_for('recommendations.add_to_list', row_id=recommendation['title']) }}">
+                        <div class="form-group mx-sm-6">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="personal-score" class="sr-only">Score</label>
+                                    <input  align="center" name="personal-score" id="personal-score" class="form-control" placeholder="Score">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label class="btn btn-warning"> Submit <input type="submit" style="display: none;"/></label>
+                                </div>
+                                <div class="col-sm-3">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                      </div>
+                      <div class="modal-footer">
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {% endif %}
+
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 {% endif %}
 {% endblock %}
+

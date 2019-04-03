@@ -21,7 +21,11 @@
                 <label>Source</label>
                 <select class="source-selection" data-style="btn-new" name="source-selection">
                     {% for source in sources %}
-                    <option selected>{{ source }}</option>
+                        {% if source == 'None' %}
+                            <option selected>{{ source }}</option>
+                        {% else %}
+                            <option>{{ source }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
@@ -29,7 +33,11 @@
                 <label>Type</label>
                 <select class="type-selection" name="type-selection">
                     {% for type in types %}
-                    <option selected>{{ type }}</option>
+                        {% if type == 'None' %}
+                            <option selected>{{ type }}</option>
+                        {% else %}
+                            <option>{{ type }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
@@ -37,7 +45,11 @@
                 <label>Genre</label>
             <select class="genre-selection" name="genre-selection">
                 {% for genre in genres %}
-                <option selected>{{ genre }}</option>
+                    {% if genre == 'None' %}
+                        <option selected>{{ genre }}</option>
+                    {% else %}
+                        <option>{{ genre }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
             </div>
@@ -68,8 +80,7 @@
         <tbody>
         {% for recommendation in recommendations %}
         <tr>
-
-            <td> <a href=" {{ request.form['anime_url'] }}" title="Visit MyAnimeList.net">{{ recommendation.title }}</a></td>
+            <td> <a href=" {{ recommendation.url }}" title="Visit MyAnimeList.net">{{ recommendation.title }}</a></td>
             <td>{{ recommendation.type }}</td>
             <td>{{ recommendation.episodes }}</td>
             <td>{{ recommendation.studio }}</td>

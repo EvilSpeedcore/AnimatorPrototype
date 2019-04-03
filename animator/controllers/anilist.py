@@ -183,7 +183,6 @@ def add_titles():
         an['Title'], an['Type'], an['Episodes'], an['Studios'], an['Source'], an['Genres'], an['Score'], an['Personal score'] = l
         anime_list = json.loads(profile.list)
         for key, value in an.items():
-            print(key, value, type(value))
             anime_list[key].append(value)
         profile.list = json.dumps(anime_list)
         db.session.commit()
