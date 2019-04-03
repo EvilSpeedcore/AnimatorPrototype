@@ -54,3 +54,12 @@ class TopAnime(db.Model):
     synopsis = db.Column(db.String())
     url = db.Column(db.String())
     image_url = db.Column(db.String())
+
+
+class Statistics(db.Model):
+    __tablename__ = 'statistics'
+
+    id = db.Column(db.Integer, primary_key=True)
+    accepted_anime_number = db.Column(db.Integer())
+    denied_anime_number = db.Column(db.Integer())
+    profile_id = db.Column(db.Integer, db.ForeignKey('siteuser.id'))

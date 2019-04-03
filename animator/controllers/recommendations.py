@@ -8,7 +8,7 @@ from sqlalchemy import inspect
 
 from animator import db
 from animator.controllers.auth import login_required
-from animator.models.models import Profile, Recommendations, TopAnime
+from animator.models.models import Profile, Recommendations, TopAnime, Statistics
 
 
 bp = Blueprint('recommendations', __name__)
@@ -57,6 +57,12 @@ def show_recommendations():
 @bp.route('/delete', methods=('GET', 'POST'))
 @login_required
 def delete_recommendation():
+    stats = Statistics.query.filter_by(profile_id=g.user.id).first()
+    if stats:
+        stats.denied_anime_number += 1
+    else:
+        stats = Statistics(accepted_anime_number=0, denied_anime_number=1, profile_id=g.user.id)
+        db.session.add(stats)
     recommendation = Recommendations.query.filter_by(title=request.args.get('row_id')).first()
     db.session.delete(recommendation)
     db.session.commit()
@@ -66,6 +72,12 @@ def delete_recommendation():
 @bp.route('/add_to_list', methods=('GET', 'POST'))
 @login_required
 def add_to_list():
+    stats = Statistics.query.filter_by(profile_id=g.user.id).first()
+    if stats:
+        stats.accepted_anime_number += 1
+    else:
+        stats = Statistics(accepted_anime_number=1, denied_anime_number=0, profile_id=g.user.id)
+        db.session.add(stats)
     recommendation = Recommendations.query.filter_by(title=request.args.get('row_id')).first()
     profile = Profile.query.filter_by(profile_id=g.user.id).first()
     anime_list = json.loads(profile.list)
