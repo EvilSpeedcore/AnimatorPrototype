@@ -83,7 +83,7 @@ def add_to_list():
     anime_list = json.loads(profile.list)
     entry = {'Title': recommendation.title,
              'Type': recommendation.anime_type,
-             'Episodes': recommendation.episodes,
+             'Episodes': int(recommendation.episodes),
              'Studios': recommendation.studio,
              'Source': recommendation.src,
              'Genres': recommendation.genre,
