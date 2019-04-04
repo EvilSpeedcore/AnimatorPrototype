@@ -26,7 +26,8 @@ def register():
         elif Siteuser.query.filter_by(username=username).first():
             error = 'User {} is already registered.'.format(username)
         if error is None:
-            user = Siteuser(username=username, password=generate_password_hash(password), age=age, country=country)
+            user = Siteuser(username=username, password=generate_password_hash(password), age=age, country=country,
+                            privilege=0)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('auth.login'))

@@ -9,6 +9,7 @@ class Siteuser(db.Model):
     password = db.Column(db.String())
     age = db.Column(db.Integer())
     country = db.Column(db.String())
+    privilege = db.Column(db.Integer())
 
     def __repr__(self):
         return '<Siteuser {}>'.format(self.username)

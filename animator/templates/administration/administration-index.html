@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<div align="left" class="container">
+    <div class="dropdown">
+        <div class="btn-group">
+          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select chart <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('administration.administration_panel_user_genre') }}">User/Genre (pie chart)</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('administration.administration_panel_user_type') }}">User/Type (pie chart)</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('administration.administration_panel_users_statistics') }}">User/Statistics (pie chart)</a></li>
+          </ul>
+        </div>
+    </div>
+    <hr>
+</div>
+{% for message in get_flashed_messages() %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}
