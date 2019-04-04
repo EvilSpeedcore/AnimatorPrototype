@@ -1,0 +1,14 @@
+{% extends 'administration/administration-index.html' %}
+
+{% block title %}Administration{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='administration.css') }}">
+{{ super() }}
+<div class="container" align="center">
+    {% if image %}
+    <div class="row">
+        <img src="data:image/png;base64, {{ image }}"/>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
