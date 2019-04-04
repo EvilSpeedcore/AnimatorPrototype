@@ -1,12 +1,8 @@
-.col-sm-1.smbutton {
-    margin-top: 25px;
-}
-
 .row {
     margin: 15px;
 }
 
-.source-selection, .type-selection, .genre-selection {
+.user-selection {
     display: block;
     font-size: 14px;
     font-family: sans-serif;
