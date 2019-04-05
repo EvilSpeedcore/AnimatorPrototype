@@ -13,11 +13,11 @@
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" class="btn btn-warning">Plot</button>
+        <button type="submit" class="btn btn-info">Plot</button>
     </form>
     {% if image %}
     <div class="row">
-        <img src="data:image/png;base64, {{ image }}" alt="" />
+        <img src="data:image/png;base64, {{ image }}"/>
     </div>
     {% endif %}
 </div>

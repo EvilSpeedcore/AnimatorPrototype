@@ -5,13 +5,19 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='administration.css') }}">
 {{ super() }}
 <div class="container" align="center">
+    <form method="POST">
+        <div class="row">
+            <select class="country-selection" data-style="btn-new" name="country-selection">
+                {% for country in countries %}
+                <option>{{ country }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-info">Plot</button>
+    </form>
     {% if image %}
     <div class="row">
         <img src="data:image/png;base64, {{ image }}"/>
-    </div>
-    {% else %}
-    <div class="alert alert-warning" role="alert">
-        <p align="center">No statistics yet.</p>
     </div>
     {% endif %}
 </div>
