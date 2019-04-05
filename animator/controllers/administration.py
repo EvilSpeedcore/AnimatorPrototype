@@ -114,3 +114,29 @@ def administration_panel_country_genre():
         figure = ax.get_figure()
         image = fig_to_base64(figure).decode('utf-8')
         return render_template('administration/administration-country-genre.html', countries=countries, image=image)
+
+
+@bp.route('/administration/age-genre', methods=('GET', 'POST'))
+@login_required
+def administration_panel_age_genre():
+    users = [user for user in
+             db.session.query(Siteuser).filter(Siteuser.id == Profile.profile_id).all()]
+    age = {user.age for user in users}
+    if request.method == 'GET':
+        return render_template('administration/administration-age-genre.html', age=age)
+    elif request.method == 'POST':
+        c = Counter()
+        selected_age = request.form['age-selection']
+        for user, profile in db.session.query(Siteuser, Profile). \
+                filter(Siteuser.id == Profile.profile_id). \
+                filter(Siteuser.privilege == 0). \
+                filter(Siteuser.age == selected_age). \
+                all():
+            anime_list = json.loads(profile.list)
+            counter = Counter(anime_list['Genres'])
+            c.update(counter)
+        df = pd.DataFrame({'Genres': list(c.keys()), 'Quantity': list(c.values())})
+        ax = df.plot.barh(x='Genres', y='Quantity', rot=0, title=selected_age)
+        figure = ax.get_figure()
+        image = fig_to_base64(figure).decode('utf-8')
+        return render_template('administration/administration-age-genre.html', age=age, image=image)
