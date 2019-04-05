@@ -39,7 +39,9 @@ def administration_panel_user_genre():
     if request.method == 'GET':
         return render_template('administration/administration-user-genre.html', usernames=usernames)
     elif request.method == 'POST':
-        selected_username = request.form['user-selection']
+        selected_username = request.form.get('user-selection')
+        if not selected_username:
+            return render_template('administration/administration-user-genre.html', usernames=usernames)
         user = Siteuser.query.filter_by(username=selected_username).first()
         profile = Profile.query.filter_by(profile_id=user.id).first()
         anime_list = json.loads(profile.list)
@@ -60,7 +62,9 @@ def administration_panel_user_type():
     if request.method == 'GET':
         return render_template('administration/administration-user-type.html', usernames=usernames)
     elif request.method == 'POST':
-        selected_username = request.form['user-selection']
+        selected_username = request.form.get('user-selection')
+        if not selected_username:
+            return render_template('administration/administration-user-type.html', usernames=usernames)
         user = Siteuser.query.filter_by(username=selected_username).first()
         profile = Profile.query.filter_by(profile_id=user.id).first()
         anime_list = json.loads(profile.list)
@@ -100,7 +104,9 @@ def administration_panel_country_genre():
         return render_template('administration/administration-country-genre.html', countries=countries)
     elif request.method == 'POST':
         c = Counter()
-        selected_country = request.form['country-selection']
+        selected_country = request.form.get('country-selection')
+        if not selected_country:
+            return render_template('administration/administration-country-genre.html', countries=countries)
         for user, profile in db.session.query(Siteuser, Profile). \
                 filter(Siteuser.id == Profile.profile_id). \
                 filter(Siteuser.privilege == 0). \
@@ -126,7 +132,7 @@ def administration_panel_age_genre():
         return render_template('administration/administration-age-genre.html', age=age)
     elif request.method == 'POST':
         c = Counter()
-        selected_age = request.form['age-selection']
+        selected_age = request.form.get('age-selection')
         for user, profile in db.session.query(Siteuser, Profile). \
                 filter(Siteuser.id == Profile.profile_id). \
                 filter(Siteuser.privilege == 0). \
