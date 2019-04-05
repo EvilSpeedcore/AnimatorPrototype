@@ -63,30 +63,28 @@ class AnimePageInfo:
 
 class AnimeList:
 
+    jikan = Jikan()
+
     def __init__(self, user):
         self.owner = user
-        self.site_url = 'https://myanimelist.net'
-        self.url = '/'.join((self.site_url, 'animelist', self.owner))
         self.anime_list = self.form_list()
         self._index = 0
 
     def form_list(self):
-        session = requests.session()
-        response = session.get(self.url, params={'status': '2', 'tag': ''})
-        data = response.text
-        #  TODO: Add soup strainer.
-        soup = bs4.BeautifulSoup(data, 'lxml')
-        anime_list = soup.find('div', attrs={'id': 'list_surround'})
-        anime = []
-        for link in anime_list.find_all('a', attrs={'class': 'animetitle'}):
-            title = unicodedata.normalize('NFC', link.text.strip())
-            url = urllib.parse.urljoin(self.site_url, link.get('href'))
-            anime_id = pathlib.Path(url).parts[3]
-            score_cell = link.parent.next_sibling.next_sibling
-            score = score_cell.text.strip()
-            score = int(score) if score.isdigit() else 0
-            anime.append(ListRecord(anime_id, title, score))
-        return anime
+        records = []
+        page = 1
+        while True:
+            lst = AnimeList.jikan.user(username=self.owner, request='animelist', argument='completed', page=page)
+            anime = lst['anime']
+            if anime:
+                for each in anime:
+                    title = unicodedata.normalize('NFC', each['title'])
+                    score = each['score'] if each['score'] else 5
+                    records.append(ListRecord(each['mal_id'], title, score))
+                page += 1
+            else:
+                break
+        return records
 
     def __iter__(self):
         return self
