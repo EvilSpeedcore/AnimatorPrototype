@@ -199,3 +199,4 @@ def add_titles():
         db.session.add(profile)
         db.session.commit()
     return redirect(url_for('anilist.create_from_scratch'))
+
