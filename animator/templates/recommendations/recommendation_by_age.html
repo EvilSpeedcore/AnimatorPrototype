@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Popular{% endblock %}
+
+{% block content %}
+<main role="main" class="container">
+    {% if not recommendations %}
+    <div class="alert alert-warning" role="alert">
+        <p align="center">No recommendations yet.</p>
+    </div>
+</main>
+{% else %}
+<div class="container">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recommendation-table.css') }}">
+    <h2 align="center">Popular</h2>
+    <hr>
+    <table class="table table-condensed" style="border-collapse:collapse;">
+        <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Type</th>
+            <th scope="col">Episodes</th>
+            <th scope="col">Studio</th>
+            <th scope="col">Source</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Score</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for recommendation in recommendations %}
+            {% set outer_loop = loop %}
+            <tr>
+            {% for key in recommendation.keys() %}
+                <td>{{ recommendation[key] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+
