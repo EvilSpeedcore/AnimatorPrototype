@@ -13,7 +13,15 @@
             <ul class="nav navbar-nav">
                 {% if g.user %}
                 <li><a href="{{ url_for('prediction.get_prediction') }}">Get prediction</a></li>
-                <li><a href="{{ url_for('recommendations.show_recommendations') }}">Recommendations</a></li>
+                <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Recommendations
+                        </a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('recommendations.show_recommendations') }}">Personal</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('recommendations.recommendation_by_age') }}">Popular</a></li>
+          </ul>
+                      </li>
                 <li><a href="{{ url_for('anilist.create_debug') }}">Debug</a></li>
                 {% endif %}
                 <li><a href="">Help</a></li>
