@@ -119,8 +119,10 @@ def get_prediction():
         profile = Profile.query.filter_by(profile_id=g.user.id).first()
         if not profile:
             flash('You need to create anime list first.')
+            return render_template('prediction/get_prediction.html', genres=genres, types=types, sources=sources)
         elif not results:
             flash('No titles were found.')
+            render_template('prediction/get_prediction.html', genres=genres, types=types, sources=sources)
         if results:
             if len(results) > 10:
                 results = random.sample(results, 10)
@@ -164,5 +166,4 @@ def get_prediction():
                     db.session.commit()
             return render_template('prediction/get_prediction.html', genres=genres, types=types, sources=sources,
                                    recommendations=recommendations)
-        return render_template('prediction/get_prediction.html', genres=genres, types=types, sources=sources,
-                               recommendations=None)
+        return render_template('prediction/get_prediction.html', genres=genres, types=types, sources=sources)
