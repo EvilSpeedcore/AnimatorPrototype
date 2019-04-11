@@ -14,16 +14,12 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
+        error = None
         username = request.form['username']
         password = request.form['password']
         age = request.form['age']
         country = request.form['country']
-        error = None
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif Siteuser.query.filter_by(username=username).first():
+        if Siteuser.query.filter_by(username=username).first():
             error = 'User {} is already registered.'.format(username)
         if error is None:
             user = Siteuser(username=username, password=generate_password_hash(password), age=age, country=country,
