@@ -14,7 +14,7 @@ from animator.controllers.auth import login_required
 from animator.models.models import Profile, TopAnime
 from animator.helpers import object_as_dict
 from animator.paginators import TitlePaginator
-from animator import db
+
 
 bp = Blueprint('anilist', __name__)
 
@@ -84,16 +84,22 @@ def create():
         if not mal_username:
             flash('MyAnimeList username is required.')
         else:
-            data = get_anime_list(mal_username)
-            profile = Profile.query.filter_by(profile_id=g.user.id).first()
-            if profile:
-                profile.list = data
-                db.session.commit()
+            try:
+                user = parser.MALUser(mal_username)
+            except jikanpy.exceptions.APIException:
+                flash('Invalid username.')
             else:
-                profile = Profile(mal_username=mal_username, profile_id=g.user.id, list=data)
-                db.session.add(profile)
-                db.session.commit()
-            return redirect(url_for('prediction.index'))
+                set_constructor = parser.DataSetConstructor(user.anime_list)
+                data = json.dumps(set_constructor.create_data_set())
+                profile = Profile.query.filter_by(profile_id=g.user.id).first()
+                if profile:
+                    profile.list = data
+                    db.session.commit()
+                else:
+                    profile = Profile(mal_username=mal_username, profile_id=g.user.id, list=data)
+                    db.session.add(profile)
+                    db.session.commit()
+                return redirect(url_for('prediction.index'))
     return render_template('list_creation/create_list.html')
 
 
