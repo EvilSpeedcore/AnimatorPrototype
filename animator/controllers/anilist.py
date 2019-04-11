@@ -143,8 +143,13 @@ def create_from_scratch():
         page_number = int(request.form['page_number'])
         titles = get_top_anime()
         paginator = TitlePaginator(titles)
-        page = paginator.find(page_number)
         pages = {'current': page_number, 'overall': math.ceil(len(titles) / paginator.PAGE_SIZE)}
+        try:
+            page = paginator.find(page_number)
+        except StopIteration:
+            page = paginator.find(1)
+            pages = {'current': 1, 'overall': math.ceil(len(titles) / paginator.PAGE_SIZE)}
+            return render_template('list_creation/create_from_scratch.html', top=page, pages=pages)
         return render_template('list_creation/create_from_scratch.html', top=page, pages=pages)
 
 

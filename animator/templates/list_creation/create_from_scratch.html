@@ -67,7 +67,7 @@
     <form class="form-inline" method="POST" action="{{ url_for('anilist.create_from_scratch') }}">
         <div class="form-group mx-sm-1">
             <label for="page_number" class="sr-only">Page</label>
-            <input name="page_number" id="page_number" value="{{ request.form['page_number'] }}" class="form-control" placeholder="Page">
+            <input type="number" min="1" name="page_number" id="page_number" value="{{ request.form['page_number'] }}" class="form-control" placeholder="Page">
         </div>
         <label class="btn btn-default"> Open <input type="submit" style="display: none;"/></label>
     </form>
