@@ -109,7 +109,6 @@ def administration_panel_country_genre():
             return render_template('administration/administration-country-genre.html', countries=countries)
         for user, profile in db.session.query(Siteuser, Profile). \
                 filter(Siteuser.id == Profile.profile_id). \
-                filter(Siteuser.privilege == 0). \
                 filter(Siteuser.country == selected_country). \
                 all():
             anime_list = json.loads(profile.list)
@@ -133,9 +132,10 @@ def administration_panel_age_genre():
     elif request.method == 'POST':
         c = Counter()
         selected_age = request.form.get('age-selection')
+        if not selected_age:
+            return render_template('administration/administration-country-genre.html', age=age)
         for user, profile in db.session.query(Siteuser, Profile). \
                 filter(Siteuser.id == Profile.profile_id). \
-                filter(Siteuser.privilege == 0). \
                 filter(Siteuser.age == selected_age). \
                 all():
             anime_list = json.loads(profile.list)
