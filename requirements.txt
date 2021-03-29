@@ -33,7 +33,7 @@ pandas==0.23.4
 peewee==3.7.1
 pefile==2018.8.8
 psycopg2-binary==2.7.6.1
-Pygments==2.2.0
+Pygments==2.7.4
 pyparsing==2.3.1
 python-dateutil==2.7.3
 python-dotenv==0.9.1
